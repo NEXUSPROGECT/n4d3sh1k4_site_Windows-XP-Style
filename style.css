@@ -166,21 +166,63 @@ button {
   font-size: 13px;
 }
 
-/* Projects */
-.projects {
+/* Projects - Folder View */
+.projects-folder {
+  background: #e0e0e0;
+  padding: 12px;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 16px;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.projects li {
-  padding: 8px;
-  border-bottom: 1px solid #c0c0c0;
+.project-thumbnail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   cursor: pointer;
+  text-align: center;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
 }
 
-.projects li:hover {
-  background: #e0e0ff;
+.project-thumbnail:hover {
+  background: #c0d8ff;
+  outline: 1px dotted #000;
+}
+
+.project-thumbnail:active {
+  background: #a8c5ff;
+}
+
+.project-thumbnail-image {
+  width: 96px;
+  height: 96px;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #808080;
+  background-color: #000;
+  flex-shrink: 0;
+}
+
+.project-thumbnail-name {
+  font-size: 11px;
+  font-family: Tahoma, sans-serif;
+  word-wrap: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 110px;
+  color: #000;
+  font-weight: 500;
 }
 
 

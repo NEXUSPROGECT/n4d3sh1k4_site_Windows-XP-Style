@@ -90,34 +90,24 @@ fetch("projects.json")
   .then(projects => {
     const list = document.getElementById("projectsList");
     projects.forEach(p => {
-      const li = document.createElement("li");
-      li.className = "project-item";
+      const thumbnail = document.createElement("div");
+      thumbnail.className = "project-thumbnail";
+      thumbnail.title = p.title + "\nClick to open GitHub";
 
-      let index = 0;
+      const imageDiv = document.createElement("div");
+      imageDiv.className = "project-thumbnail-image";
+      imageDiv.style.backgroundImage = `url(${p.screenshots[0]})`;
 
-      const preview = document.createElement("div");
-      preview.className = "project-preview";
-      preview.title = "Click to view screenshots\nDouble click to open GitHub";
-      preview.style.backgroundImage = `url(${p.screenshots[0]})`;
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "project-thumbnail-name";
+      nameDiv.textContent = p.title;
 
-      preview.onclick = () => {
-        index = (index + 1) % p.screenshots.length;
-        preview.style.backgroundImage = `url(${p.screenshots[index]})`;
-      };
+      thumbnail.appendChild(imageDiv);
+      thumbnail.appendChild(nameDiv);
+      
+      thumbnail.onclick = () => window.open(p.url, "_blank");
 
-      preview.ondblclick = () => window.open(p.url, "_blank");
-
-      const info = document.createElement("div");
-      info.className = "project-info";
-      info.innerHTML = `
-        <strong>${p.title}</strong>
-        <p>${p.description}</p>
-        <button onclick="window.open('${p.url}')">GitHub</button>
-      `;
-
-      li.appendChild(preview);
-      li.appendChild(info);
-      list.appendChild(li);
+      list.appendChild(thumbnail);
     });
   });
 
