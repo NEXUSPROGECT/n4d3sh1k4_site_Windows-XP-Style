@@ -1,42 +1,37 @@
-[
+﻿[
   {
-    "title": "Spring Server for UCust Startup",
-    "description": "This dual-token authentication backend was written for the startup UCast. It's my first server using a dual-token authentication system with a long-lived refresh token (in the browser cookie) and a short-lived access token (in the request body), which, after its lifetime expires, must be refreshed using the refresh token via the /refresh endpoint.",
+    "id": "spring-auth-server",
     "url": "https://github.com/you/theatre-app",
+    "linkType": "GitHub Repository",
+    "preview": "assets/projects/UCustServer/1.png",
     "screenshots": [
       "assets/projects/UCustServer/1.png",
       "assets/projects/UCustServer/2.png",
       "assets/projects/UCustServer/3.png"
-    ]
+    ],
+    "isMobileApp": false
   },
   {
-    "title": "Android Counter App",
-    "description": "This dual-token authentication backend was written for the startup UCast. It's my first server using a dual-token authentication system with a long-lived refresh token (in the browser cookie) and a short-lived access token (in the request body), which, after its lifetime expires, must be refreshed using the refresh token via the /refresh endpoint.",
-    "url": "https://github.com/you/android-counter",
+    "id": "pemz-site",
+    "url": "https://pemz.n4d3sh1k4.site/",
+    "linkType": "Website",
+    "preview": "assets/projects/PEMZ/1.png",
+    "screenshots": [
+      "assets/projects/PEMZ/2.png",
+      "assets/projects/PEMZ/2.png"
+    ],
+    "isMobileApp": false
+  },
+  {
+    "id": "test-phone",
+    "url": "https://pemz.n4d3sh1k4.site/",
+    "linkType": "GitHub Repository",
+    "preview": "assets/projects/PEMZ/1.png",
     "screenshots": [
       "assets/projects/theatre/1.png",
       "assets/projects/theatre/2.png",
-      "assets/projects/theatre/3.png"
-    ]
-  },
-  {
-    "title": "Android Counter App",
-    "description": "JWT, Room, Spring",
-    "url": "https://github.com/you/android-counter",
-    "screenshots": [
-      "assets/projects/theatre/1.png",
-      "assets/projects/theatre/2.png",
-      "assets/projects/theatre/3.png"
-    ]
-  },
-  {
-    "title": "Android Counter App",
-    "description": "JWT, Room, Spring",
-    "url": "https://github.com/you/android-counter",
-    "screenshots": [
-      "assets/projects/theatre/1.png",
-      "assets/projects/theatre/2.png",
-      "assets/projects/theatre/3.png"
-    ]
+      "assets/projects/theatre/3.jpg"
+    ],
+    "isMobileApp": true
   }
 ]

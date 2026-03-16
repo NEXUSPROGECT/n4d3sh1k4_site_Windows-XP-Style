@@ -1,0 +1,10 @@
+{
+  "project.spring-auth-server.title": "Spring auth server для стартапа UCust",
+  "project.spring-auth-server.description": "Этот backend с двойной токенизацией был написан для стартапа UCust. Это мой первый сервер с системой двойной токенизации с долгоживущим refresh token (в cookie браузера) и короткоживущим access token (в теле запроса), который после истечения должен быть обновлен через refresh token через endpoint /refresh.",
+  
+  "project.pemz-site.title": "PEMZ Site",
+  "project.pemz-site.description": "Это веб-сайт предприятия PEMZ, разработанный мной на фреймворке Django.",
+  
+  "project.test-phone.title": "TestPhone",
+  "project.test-phone.description": "Это тестовое мобильное приложение, разработанное на React Native."
+}

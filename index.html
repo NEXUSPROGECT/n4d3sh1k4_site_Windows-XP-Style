@@ -70,8 +70,7 @@
           </div>
 
           <div class="window-body notepad">
-            <span data-i18n="about.text"></span>
-            <span class="cursor">|</span>
+            <span data-i18n="about.text"></span><span class="cursor">|</span>
           </div>
         </div>
 
@@ -85,7 +84,13 @@
           </div>
 
           <div class="window-body projects-folder">
-            <div id="projectsList" class="projects-grid"></div>
+            <div class="projects-container">
+              <div id="projectsList" class="projects-grid"></div>
+              <div class="projects-divider"></div>
+              <div id="projectsPreview" class="projects-preview">
+                <div class="preview-empty" data-i18n="projects.empty">Select a project to view details</div>
+              </div>
+            </div>
           </div>
         </div>
 

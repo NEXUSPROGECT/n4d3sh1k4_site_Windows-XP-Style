@@ -9,6 +9,7 @@
     "desktop.profile.bar": "Profile",
     "desktop.start":"Start",
     "profile.name":"Mihail Krivosheev",
-    "about.text":"Hi 👋 I'm a backend/Android developer who loves building clean and reliable systems. Beyond my core competencies, which I'm trying to focus on, I have a lot of other skills: Python, Java/Kotlin, C#, SQL&Databases, Infrastructure&DevOps, Network Engineering."
+    "about.text":"Hi 👋 I'm a backend/Android developer who loves building clean and reliable systems. Beyond my core competencies, which I'm trying to focus on, I have a lot of other skills: Python, Java/Kotlin, C#, SQL&Databases, Infrastructure&DevOps, Network Engineering.",
+    "projects.empty":"Select a project to view details"
 
 }

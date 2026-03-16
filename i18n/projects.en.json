@@ -1,0 +1,10 @@
+{
+  "project.spring-auth-server.title": "Spring auth server for UCust startup",
+  "project.spring-auth-server.description": "This dual-token authentication backend was written for the startup UCust. It's my first server using a dual-token authentication system with a long-lived refresh token (in the browser cookie) and a short-lived access token (in the request body), which, after its lifetime expires, must be refreshed using the refresh token via the /refresh endpoint.",
+  
+  "project.pemz-site.title": "PEMZ Site",
+  "project.pemz-site.description": "This is the website of the PEMZ enterprise, developed by me on the Django framework.",
+  
+  "project.test-phone.title": "TestPhone",
+  "project.test-phone.description": "This is a test mobile application developed with React Native."
+}
