@@ -58,7 +58,7 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_TAILSCALE_IP }} # Имя сервера в сети Tailscale (то, что ты используешь после 'ssh пользователь@...')
+          host: ${{ secrets.SERVER_TAILSCALE_IP }}   # Имя сервера в сети Tailscale (то, что ты используешь после 'ssh пользователь@...')
           username: ${{ secrets.SERVER_USER }}       # Пользователь
           key: ${{ secrets.SERVER_SSH_KEY }}         # Приватный SSH ключ
           script: |
