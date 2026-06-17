@@ -1,0 +1,146 @@
+{% load static %}{% load tz %}<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My XP Portfolio</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/xp.css" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
+  <div class="viewport">
+      <div class="desktop" id="desktop">
+
+        <!-- Mobile Language Selector (Hidden on Desktop) -->
+        <div class="mobile-lang-selector">
+          <button onclick="switchLanguage('ru')" class="lang-btn">RU</button>
+          <button onclick="switchLanguage('en')" class="lang-btn">EN</button>
+          <button onclick="switchLanguage('uk')" class="lang-btn">UK</button>
+        </div>
+
+        <div id="loader" class="window" style="width:300px; height:80px; top:200px; left:calc(50% - 150px);">
+          <div class="title-bar" data-i18n="loader.title">Загрузка</div>
+          <div class="window-body" style="padding:5px;">
+            <span data-i18n="loader.loading">Загрузка ресурсов....</span>
+
+            <progress id="progress" max="100" value="0" style="width:100%"></progress>
+          </div>
+        </div>
+
+        <!-- Desktop icons -->
+        <div class="desktop-icon" ondblclick="openWindow('projectsWindow')">
+          <img src="{% static 'assets/icons/documents.png' %}" />
+          <span data-i18n="desktop.projects">Projects</span>
+        </div>
+
+        <div class="desktop-icon" ondblclick="openWindow('profileWindow')">
+          <img src="{% static 'assets/icons/аccount.png' %}" />
+          <span data-i18n="desktop.profile">Profile</span>
+        </div>
+
+        <div class="desktop-icon" ondblclick="openWindow('aboutWindow')">
+          <img src="{% static 'assets/icons/notepad.png' %}" />
+          <span data-i18n="desktop.about">About.txt</span>
+        </div>
+
+        <div class="desktop-icon" ondblclick="window.open('https://github.com/NEXUSPROGECT')">
+          <img src="{% static 'assets/icons/github.png' %}" />
+          <span data-i18n="desktop.github">GitHub</span>
+        </div>
+
+        <!-- Profile window -->
+        <div class="window" id="profileWindow" data-title="Profile">
+          <div class="title-bar">
+            <div class="title-bar-text">
+              <span data-i18n="desktop.profile.bar">Profile</span>
+            </div>
+            <div class="title-bar-controls">
+              <button aria-label="Close" onclick="closeWindow('profileWindow')"></button>
+            </div>
+          </div>
+
+          <div class="window-body profile">
+            <img src="{% if avatar_url %}{{ avatar_url }}{% else %}{% static 'assets/avatar.jpg' %}{% endif %}" class="avatar">
+            <div>
+              <strong data-i18n="profile.name"></strong><br>
+              Software Engineer<br>
+              Java / Spring / Android / Linux<br><br>
+              <button onclick="window.open('https://github.com/NEXUSPROGECT')">
+                GitHub
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- About (Notepad) window -->
+        <div class="window" id="aboutWindow" data-title="About.txt">
+          <div class="title-bar">
+            <div class="title-bar-text"><span data-i18n="desktop.about.bar">About.txt - Notepad</span></div>
+            <div class="title-bar-controls">
+              <button aria-label="Close" onclick="closeWindow('aboutWindow')"></button>
+            </div>
+          </div>
+
+          <div class="window-body notepad">
+            <span data-i18n="about.text"></span><span class="cursor">|</span>
+          </div>
+        </div>
+
+        <!-- Projects window -->
+        <div class="window" id="projectsWindow" data-title="My Projects">
+          <div class="title-bar">
+            <div class="title-bar-text"><span data-i18n="desktop.projects.bar">My Projects</span></div>
+            <div class="title-bar-controls">
+              <button aria-label="Close" onclick="closeWindow('projectsWindow')"></button>
+            </div>
+          </div>
+
+          <div class="window-body projects-folder">
+            <div class="projects-container">
+              <div id="projectsList" class="projects-grid"></div>
+              <div class="projects-divider"></div>
+              <div id="projectsPreview" class="projects-preview">
+                <div class="preview-empty" data-i18n="projects.empty">Select a project to view details</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="taskbar">
+          <button class="start-button" onclick="toggleStart()"><span data-i18n="desktop.start"></span></button>
+          <div class="taskbar-windows" id="taskbarWindows"></div>
+          <div class="taskbar-clock" id="clock"></div>
+        </div>
+
+        <div class="mobile-footer">
+          © {% now "Y" %} Nexus Project &nbsp;|&nbsp;
+          <span data-i18n="footer.text">Windows XP Style</span>
+        </div>
+      </div>
+
+      <div class="start-menu" id="startMenu">
+        <div class="start-header">Nexus Project</div>
+
+        <button onclick="openWindow('profileWindow')"><span data-i18n="desktop.profile"></span></button>
+        <button onclick="openWindow('aboutWindow')"><span data-i18n="desktop.about"></span></button>
+        <button onclick="openWindow('projectsWindow')"><span data-i18n="desktop.projects"></span></button>
+        <div class="start-menu-item has-submenu">
+          <button><span data-i18n="startmenu.language">Language ▶</span></button>
+          <div class="submenu">
+            <button onclick="switchLanguage('ru')">Русский</button>
+            <button onclick="switchLanguage('en')">English</button>
+            <button onclick="switchLanguage('uk')">Українська</button>
+          </div>
+        </div>
+        <hr>
+        <button onclick="window.open('https://github.com/NEXUSPROGECT')">GitHub</button>
+      </div>
+  </div>
+  <script src="{% static 'js/i18n.js' %}"></script>
+  <script src="{% static 'js/language-switcher.js' %}"></script>
+  <script src="{% static 'js/app.js' %}"></script>
+  <script src="{% static 'js/fakeload.js' %}"></script>
+  <script src="{% static 'js/XP-friendly_draggable.js' %}"></script>
+  </body>
+</html>

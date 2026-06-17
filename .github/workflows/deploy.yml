@@ -1,9 +1,9 @@
-name: Deploy Static Site
+name: Deploy Django Site
 
 on:
   push:
     branches:
-      - main # Запуск при пуше в ветку main
+      - main
 
 env:
   REGISTRY: ghcr.io
@@ -44,9 +44,11 @@ jobs:
   deploy-to-server:
     needs: build-and-push-image
     runs-on: ubuntu-latest
-    
+
     steps:
-      # Подключаем раннер GitHub Actions к твоей сети Tailscale
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Tailscale
         uses: tailscale/github-action@v2
         with:
@@ -54,23 +56,20 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      # Теперь раннер внутри сети Tailscale и может достучаться до сервера
-      - name: Deploy via SSH (Native)
+      - name: Copy docker-compose.yml to server
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} "mkdir -p /opt/n4d3sh1k4"
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }}:/opt/n4d3sh1k4/docker-compose.yml
+
+      - name: Deploy via SSH
+        run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} << 'EOF'
-            # Логинимся в GitHub Container Registry на сервере
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            # Скачиваем новый образ
-            docker pull ghcr.io/${{ env.IMAGE_NAME }}:main
-            
-            # Останавливаем и удаляем старый контейнер (если есть)
-            docker stop my-portfolio-site || true
-            docker rm my-portfolio-site || true
-            
-            # Запускаем новый контейнер
-            docker run -d --name my-portfolio-site -p 8001:80 --restart unless-stopped ghcr.io/${{ env.IMAGE_NAME }}:main
+            cd /opt/n4d3sh1k4
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f
           EOF

@@ -1,0 +1,20 @@
+services:
+  db:
+    environment:
+      POSTGRES_DB: portfolio
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: localpassword
+    ports:
+      - "5432:5432"
+
+  minio:
+    ports:
+      - "9000:9000"
+      - "9001:9001" # MinIO Console → http://localhost:9001
+
+  web:
+    build: .
+    image: n4d3sh1k4-site-local
+    env_file: .env.local
+    volumes:
+      - ./media:/app/media
