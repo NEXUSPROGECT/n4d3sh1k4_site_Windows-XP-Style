@@ -61,14 +61,14 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} "mkdir -p ~/n4d3sh1k4/me-xp"
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }}:~/n4d3sh1k4/me-xp/docker-compose.yml
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} "mkdir -p /home/n4d3sh1k4/me-xp"
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }}:/home/n4d3sh1k4/me-xp/docker-compose.yml
 
       - name: Deploy via SSH
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} << 'EOF'
             
-            cd ~/n4d3sh1k4/me-xp
+            cd /home/n4d3sh1k4/me-xp
             
             cat << 'ENV_FILE' > .env
             SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
