@@ -56,40 +56,33 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - name: Copy docker-compose.yml to server
+      - name: Deploy project
         run: |
+          # 1. Настраиваем SSH
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} "mkdir -p /home/n4d3sh1k4/me-xp"
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }}:/home/n4d3sh1k4/me-xp/docker-compose.yml
-
-      - name: Deploy via SSH
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} << 'EOF'
-            
-            cd /home/n4d3sh1k4/me-xp
-            
-            cat << 'ENV_FILE' > .env
-            SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
-            DEBUG=${{ secrets.DJANGO_DEBUG }}
-            ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_HOST=db
-            DB_PORT=5432
-            MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
-            MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
-            MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}
-            MINIO_ENDPOINT=http://minio:9000
-            MINIO_PUBLIC_DOMAIN=${{ secrets.MINIO_PUBLIC_DOMAIN }}
-            MINIO_SECURE=False
-            ENV_FILE
-
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker image prune -f
-          EOF
+          
+          # 2. Создаем .env прямо здесь, в GitHub Actions
+          cat << 'ENV_FILE' > .env
+          SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          DEBUG=${{ secrets.DJANGO_DEBUG }}
+          ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_HOST=db
+          DB_PORT=5432
+          MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+          MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}
+          MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}
+          MINIO_ENDPOINT=http://minio:9000
+          MINIO_PUBLIC_DOMAIN=${{ secrets.MINIO_PUBLIC_DOMAIN }}
+          MINIO_SECURE=False
+          ENV_FILE
+          
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} "mkdir -p ~/me-xp"
+          
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml .env ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }}:~/me-xp/
+          
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} "cd ~/me-xp && echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin && docker compose pull && docker compose up -d --remove-orphans && docker image prune -f"
