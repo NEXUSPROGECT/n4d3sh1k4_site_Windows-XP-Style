@@ -37,15 +37,16 @@ services:
       minio:
         condition: service_healthy
     env_file: .env
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
     entrypoint: >
-      /bin/sh -c "
-      until mc alias set myminio http://minio:9000 $$MINIO_ACCESS_KEY $$MINIO_SECRET_KEY; do
+      /bin/sh -c " until mc alias set myminio http://minio:9000
+      $$MINIO_ACCESS_KEY $$MINIO_SECRET_KEY; do
         echo 'Waiting for MinIO...' && sleep 2;
-      done &&
-      mc mb myminio/$$MINIO_BUCKET --ignore-existing &&
-      mc anonymous set public myminio/$$MINIO_BUCKET &&
-      exit 0
-      "
+      done && mc mb myminio/$$MINIO_BUCKET --ignore-existing && mc anonymous set
+      public myminio/$$MINIO_BUCKET && exit 0 "
     restart: no
 
   web:
@@ -61,7 +62,8 @@ services:
     restart: unless-stopped
     command: >
       sh -c "python manage.py migrate --noinput &&
-             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 30"
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+      --timeout 30"
 
 volumes:
   postgres_data:
