@@ -70,6 +70,7 @@ class MinIOStorage(Storage):
             img.save(output, 'WEBP', quality=85, method=4)
             output.seek(0)
             name = os.path.splitext(name)[0] + '.webp'
+            output.name = os.path.basename(name)
             return name, output
         except Exception:
             try:
@@ -82,11 +83,15 @@ class MinIOStorage(Storage):
         name, content = self._convert_to_webp(name, content)
         if not self.file_overwrite:
             name = self.get_available_name(name)
+            content_type = 'image/webp' if name.endswith('.webp') else 'application/octet-stream'
         self.client.upload_fileobj(
             content,
             self.bucket_name,
             name,
-            ExtraArgs={'ACL': self.default_acl},
+            ExtraArgs={
+                'ACL': self.default_acl,
+                'ContentType': content_type
+            },
         )
         return name
 
