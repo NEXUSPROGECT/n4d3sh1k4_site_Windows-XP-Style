@@ -58,12 +58,10 @@ jobs:
 
       - name: Deploy project
         run: |
-          # 1. Настраиваем SSH
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
-          # 2. Создаем .env прямо здесь, в GitHub Actions
           cat << 'ENV_FILE' > .env
           SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
           DEBUG=${{ secrets.DJANGO_DEBUG }}
@@ -78,7 +76,7 @@ jobs:
           MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}
           MINIO_ENDPOINT=http://minio:9000
           MINIO_PUBLIC_DOMAIN=${{ secrets.MINIO_PUBLIC_DOMAIN }}
-          MINIO_SECURE=False
+          MINIO_SECURE=True
           ENV_FILE
           
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} "mkdir -p ~/me-xp"
