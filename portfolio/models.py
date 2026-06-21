@@ -40,6 +40,17 @@ class Translation(models.Model):
         return f'[{self.language}] {self.key}'
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name='Название тега')
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
+    def __str__(self):
+        return self.name
+
+
 class Project(models.Model):
     slug = models.SlugField(max_length=100, unique=True, verbose_name='ID (slug)')
     url = models.URLField(verbose_name='Ссылка')
@@ -58,6 +69,7 @@ class Project(models.Model):
     )
     is_mobile_app = models.BooleanField(default=False, verbose_name='Мобильное приложение')
     order = models.PositiveIntegerField(default=0, verbose_name='Порядок')
+    tags = models.ManyToManyField('Tag', blank=True, related_name='projects', verbose_name='Теги')
 
     class Meta:
         ordering = ['order']
@@ -89,6 +101,26 @@ class ProjectScreenshot(models.Model):
 
     def __str__(self):
         return f'{self.project.slug} – скриншот {self.order}'
+
+
+class ProjectScreenshotTranslation(models.Model):
+    screenshot = models.ForeignKey(
+        ProjectScreenshot, related_name='translations',
+        on_delete=models.CASCADE, verbose_name='Скриншот',
+    )
+    language = models.CharField(max_length=10, verbose_name='Язык')
+    title = models.CharField(max_length=300, verbose_name='Название', blank=True)
+    description = models.TextField(verbose_name='Описание', blank=True)
+
+    class Meta:
+        unique_together = ('screenshot', 'language')
+        verbose_name = 'Перевод скриншота'
+        verbose_name_plural = 'Переводы скриншотов'
+
+    def __str__(self):
+        title_suffix = f': "{self.title}"' if self.title else ''
+        return f'[{self.language}] Скриншот {self.screenshot.order} ({self.screenshot.project.slug}){title_suffix}'
+
 
 
 class ProjectTranslation(models.Model):

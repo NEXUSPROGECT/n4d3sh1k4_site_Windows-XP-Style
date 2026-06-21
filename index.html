@@ -106,6 +106,25 @@
           </div>
         </div>
 
+        <!-- Screenshot Viewer Window -->
+        <div class="window" id="screenshotViewerWindow" data-title="Image Viewer" style="display: none; position: absolute;">
+          <div class="title-bar">
+            <div class="title-bar-text">
+              <span id="screenshotViewerTitle" data-i18n="viewer.title">Image Viewer</span>
+            </div>
+            <div class="title-bar-controls">
+              <button aria-label="Close" onclick="closeWindow('screenshotViewerWindow')"></button>
+            </div>
+          </div>
+          <div class="window-body screenshot-viewer-body">
+            <div class="screenshot-viewer-title-header" id="screenshotViewerHeader"></div>
+            <div class="screenshot-viewer-image-container">
+              <img id="screenshotViewerImage" src="" alt="Screenshot">
+            </div>
+            <div class="screenshot-viewer-description" id="screenshotViewerDescription"></div>
+          </div>
+        </div>
+
         <div class="taskbar">
           <button class="start-button" onclick="toggleStart()"><span data-i18n="desktop.start"></span></button>
           <div class="taskbar-windows" id="taskbarWindows"></div>

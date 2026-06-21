@@ -177,6 +177,10 @@ document.addEventListener("mousemove", e => {
         minWidth = 650;
         minHeight = 350;
         break;
+      case 'screenshotViewerWindow':
+        minWidth = 350;
+        minHeight = 300;
+        break;
       default:
         minWidth = 250;
         minHeight = 150;
@@ -306,6 +310,14 @@ function initializeWindowLayout() {
       offsetY: -40,
       minWidth: 650,
       minHeight: 350
+    },
+    screenshotViewerWindow: {
+      width: Math.min(600, viewportWidth * 0.7),
+      height: Math.min(500, viewportHeight * 0.7),
+      offsetX: -300,
+      offsetY: -220,
+      minWidth: 350,
+      minHeight: 300
     }
   };
 
@@ -384,10 +396,17 @@ function initializeProjects(projects) {
     const mobileClass = p.isMobileApp ? " mobile" : "";
     const firstScreenshot = p.screenshots && p.screenshots.length > 0 ? p.screenshots[0] : p.preview;
 
+    const tagsHTML = p.tags && p.tags.length > 0
+      ? `<div class="preview-tags">${p.tags.map(t => {
+          const schemeIdx = Math.abs(t.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % 6;
+          return `<span class="tag-badge tag-scheme-${schemeIdx}">${t}</span>`;
+        }).join('')}</div>`
+      : '';
+
     const previewHTML = `
       <div class="preview-content">
         <div class="preview-image-container${mobileClass}">
-          <div class="preview-image${mobileClass}" style="background-image: url('${firstScreenshot}')"></div>
+          <div class="preview-image${mobileClass}" style="background-image: url('${firstScreenshot}')" onclick="openScreenshotViewer(${projectIndex})"></div>
           ${p.screenshots.length > 1 ? `
             <div class="preview-controls">
               <button class="preview-nav-btn" onclick="prevScreenshot(${projectIndex})">❮</button>
@@ -398,6 +417,7 @@ function initializeProjects(projects) {
         </div>
         <div class="preview-title">${projectTitle}</div>
         <div class="preview-type">${p.linkType || "Link"}</div>
+        ${tagsHTML}
         <div class="preview-description">${projectDesc}</div>
         <button class="preview-button" onclick="window.open('${p.url}', '_blank')">Open ${lastWord}</button>
       </div>
@@ -477,6 +497,49 @@ function initializeProjects(projects) {
       img.src = p.screenshots[currentScreenshot];
     }
   };
+
+  window.openScreenshotViewer = (projectIndex) => {
+    const p = projects[projectIndex];
+    const activeScreenshotIdx = currentScreenshot;
+    
+    const screenshotUrl = p.screenshots && p.screenshots.length > 0 ? p.screenshots[activeScreenshotIdx] : p.preview;
+    
+    const imgEl = document.getElementById("screenshotViewerImage");
+    imgEl.src = screenshotUrl;
+    
+    const projectKey = p.id;
+    const titleKey = `project.${projectKey}.screenshot.${activeScreenshotIdx}.title`;
+    const descKey = `project.${projectKey}.screenshot.${activeScreenshotIdx}.description`;
+    
+    const titleText = projectTranslations[titleKey] || (projectTranslations[`project.${projectKey}.title`] || projectKey) + ` - Screenshot ${activeScreenshotIdx + 1}`;
+    const descText = projectTranslations[descKey] || "";
+    
+    document.getElementById("screenshotViewerHeader").textContent = titleText;
+    
+    const descEl = document.getElementById("screenshotViewerDescription");
+    descEl.textContent = descText;
+    
+    if (descText && descText.trim() !== "") {
+      descEl.style.display = "block";
+    } else {
+      descEl.style.display = "none";
+    }
+    
+    openWindow('screenshotViewerWindow');
+    
+    const win = document.getElementById("screenshotViewerWindow");
+    const desktop = document.querySelector(".desktop");
+    const width = win.offsetWidth || Math.min(600, window.innerWidth * 0.7);
+    const height = win.offsetHeight || Math.min(500, window.innerHeight * 0.7);
+    
+    const left = (desktop.offsetWidth - width) / 2;
+    const top = (desktop.offsetHeight - height - 40) / 2;
+    
+    win.style.left = Math.max(10, Math.round(left)) + "px";
+    win.style.top = Math.max(10, Math.round(top)) + "px";
+    win.style.right = "auto";
+  };
+
 
   projects.forEach((p, index) => {
     const projectKey = p.id;

@@ -13,5 +13,6 @@
     "projects.empty":"Select a project to view details",
     "startmenu.language": "Language ▶",
     "desktop.github": "GitHub",
-    "footer.text": "Windows XP Style"
+    "footer.text": "Windows XP Style",
+    "viewer.title": "Image Viewer"
 }
