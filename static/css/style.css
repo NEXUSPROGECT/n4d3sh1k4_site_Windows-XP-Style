@@ -59,7 +59,7 @@ button {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: url('../assets/wallper.jpg') center center / cover no-repeat;
+    background: url('../assets/wallper.webp') center center / cover no-repeat;
     z-index: -1;
   }
 
@@ -158,6 +158,8 @@ button {
   }
 
   .projects-grid {
+    flex: none;
+    width: 100%;
     max-width: 100%;
     border-right: none;
     border-bottom: 2px solid #808080;
@@ -191,7 +193,7 @@ button {
 .desktop {
   width: 100%;
   height: 100%;
-  background: url("../assets/wallper.jpg") center / cover no-repeat;
+  background: url("../assets/wallper.webp") center / cover no-repeat;
   position: relative;
   overflow: hidden;
 }
@@ -420,8 +422,7 @@ button {
   padding: 12px;
   margin: 0;
   overflow-y: auto;
-  flex: 0 0 auto;
-  max-width: 450px;
+  flex: 0 0 280px; /* Фиксированная базовая ширина решает баг схлопывания сетки в Firefox из-за автоматического расчета flex-basis */
   border-right: 2px solid #808080;
   align-content: flex-start;
 }
