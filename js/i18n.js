@@ -2,7 +2,8 @@ let currentLang = localStorage.getItem("lang") || "ru";
 let translations = {};
 
 async function loadLang(lang) {
-  currentLang = lang; // Fix: Update global language state
+  currentLang = lang;
+  document.documentElement.lang = lang;
   const res = await fetch(`i18n/${lang}.json`);
   translations = await res.json();
   applyTranslations();

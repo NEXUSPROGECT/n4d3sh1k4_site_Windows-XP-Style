@@ -1,161 +1,218 @@
-{% load static %}{% load tz %}<!DOCTYPE html>
-<html lang="ru">
+{% load static %}{% load tz %}{% load portfolio_extras %}<!DOCTYPE html>
+<html lang="{{ default_lang }}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My XP Portfolio</title>
+
+    <title>{{ translations|dictkey:"profile.name" }} — Backend/Android Developer | Портфолио</title>
+    <meta name="description" content="{{ translations|dictkey:"about.text"|truncatewords:30 }}" />
+
+    <link rel="canonical" href="{{ canonical_url }}" />
+
+    {% for lang_code in available_langs %}
+    <link rel="alternate" hreflang="{{ lang_code }}" href="{{ canonical_url }}" />
+    {% endfor %}
+    <link rel="alternate" hreflang="x-default" href="{{ canonical_url }}" />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content="{{ translations|dictkey:"profile.name" }} — Backend/Android Developer" />
+    <meta property="og:description" content="{{ translations|dictkey:"about.text"|truncatewords:25 }}" />
+    <meta property="og:url" content="{{ canonical_url }}" />
+    <meta property="og:image" content="{% if avatar_url %}{{ avatar_url }}{% else %}{% static 'assets/avatar.jpg' %}{% endif %}" />
+    <meta property="og:image:alt" content="{{ translations|dictkey:"profile.name" }}" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="Nexus Project" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ translations|dictkey:"profile.name" }} — Backend/Android Developer" />
+    <meta name="twitter:description" content="{{ translations|dictkey:"about.text"|truncatewords:25 }}" />
+    <meta name="twitter:image" content="{% if avatar_url %}{{ avatar_url }}{% else %}{% static 'assets/avatar.jpg' %}{% endif %}" />
 
     <link rel="stylesheet" href="https://unpkg.com/xp.css" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "{{ translations|dictkey:"profile.name" }}",
+      "jobTitle": "Software Engineer",
+      "knowsAbout": ["Java", "Spring", "Android", "Linux"],
+      "url": "{{ canonical_url }}",
+      "image": "{% if avatar_url %}{{ avatar_url }}{% else %}{% static 'assets/avatar.jpg' %}{% endif %}",
+      "sameAs": "https://github.com/NEXUSPROGECT"
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Портфолио проектов",
+      "description": "{{ translations|dictkey:"about.text"|truncatewords:20 }}",
+      "url": "{{ canonical_url }}",
+      "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": [
+          {% for p in projects %}
+          {
+            "@type": "SoftwareApplication",
+            "position": {{ forloop.counter }},
+            "name": "{{ p.title|escapejs }}",
+            "description": "{{ p.description|escapejs }}",
+            "url": "{{ p.url }}",
+            "applicationCategory": "{% if p.is_mobile_app %}MobileApplication{% else %}WebApplication{% endif %}"
+          }{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    }
+    </script>
   </head>
   <body>
-  <div class="viewport">
-      <div class="desktop" id="desktop">
+  <main class="viewport">
+    <div class="desktop" id="desktop">
 
-        <!-- Mobile Language Selector (Hidden on Desktop) -->
-        <div class="mobile-lang-selector">
-          <button onclick="switchLanguage('ru')" class="lang-btn">RU</button>
-          <button onclick="switchLanguage('en')" class="lang-btn">EN</button>
-          <button onclick="switchLanguage('uk')" class="lang-btn">UK</button>
+      <nav class="mobile-lang-selector" aria-label="Language selector">
+        <button onclick="switchLanguage('ru')" class="lang-btn" lang="ru">RU</button>
+        <button onclick="switchLanguage('en')" class="lang-btn" lang="en">EN</button>
+        <button onclick="switchLanguage('uk')" class="lang-btn" lang="uk">UK</button>
+      </nav>
+
+      <div id="loader" class="window" style="width:300px; height:80px; top:200px; left:calc(50% - 150px);" role="status" aria-label="{{ translations|dictkey:"loader.title" }}">
+        <div class="title-bar">
+          <span data-i18n="loader.title">{{ translations|dictkey:"loader.title" }}</span>
         </div>
-
-        <div id="loader" class="window" style="width:300px; height:80px; top:200px; left:calc(50% - 150px);">
-          <div class="title-bar" data-i18n="loader.title">Загрузка</div>
-          <div class="window-body" style="padding:5px;">
-            <span data-i18n="loader.loading">Загрузка ресурсов....</span>
-
-            <progress id="progress" max="100" value="0" style="width:100%"></progress>
-          </div>
+        <div class="window-body" style="padding:5px;">
+          <span data-i18n="loader.loading">{{ translations|dictkey:"loader.loading" }}</span>
+          <progress id="progress" max="100" value="0" style="width:100%"></progress>
         </div>
+      </div>
 
-        <!-- Desktop icons -->
+      <nav class="desktop-icons" aria-label="Desktop shortcuts">
         <div class="desktop-icon" ondblclick="openWindow('projectsWindow')">
-          <img src="{% static 'assets/icons/documents.png' %}" />
-          <span data-i18n="desktop.projects">Projects</span>
+          <img src="{% static 'assets/icons/documents.png' %}" alt="Projects" />
+          <span data-i18n="desktop.projects">{{ translations|dictkey:"desktop.projects" }}</span>
         </div>
-
         <div class="desktop-icon" ondblclick="openWindow('profileWindow')">
-          <img src="{% static 'assets/icons/аccount.png' %}" />
-          <span data-i18n="desktop.profile">Profile</span>
+          <img src="{% static 'assets/icons/аccount.png' %}" alt="Profile" />
+          <span data-i18n="desktop.profile">{{ translations|dictkey:"desktop.profile" }}</span>
         </div>
-
         <div class="desktop-icon" ondblclick="openWindow('aboutWindow')">
-          <img src="{% static 'assets/icons/notepad.png' %}" />
-          <span data-i18n="desktop.about">About.txt</span>
+          <img src="{% static 'assets/icons/notepad.png' %}" alt="About" />
+          <span data-i18n="desktop.about">{{ translations|dictkey:"desktop.about" }}</span>
         </div>
-
         <div class="desktop-icon" ondblclick="window.open('https://github.com/NEXUSPROGECT')">
-          <img src="{% static 'assets/icons/github.png' %}" />
-          <span data-i18n="desktop.github">GitHub</span>
+          <img src="{% static 'assets/icons/github.png' %}" alt="GitHub" />
+          <span data-i18n="desktop.github">{{ translations|dictkey:"desktop.github" }}</span>
         </div>
+      </nav>
 
-        <!-- Profile window -->
-        <div class="window" id="profileWindow" data-title="Profile">
-          <div class="title-bar">
-            <div class="title-bar-text">
-              <span data-i18n="desktop.profile.bar">Profile</span>
-            </div>
-            <div class="title-bar-controls">
-              <button aria-label="Close" onclick="closeWindow('profileWindow')"></button>
-            </div>
+      <section class="window" id="profileWindow" data-title="{{ translations|dictkey:"desktop.profile" }}" aria-label="{{ translations|dictkey:"desktop.profile" }}">
+        <header class="title-bar">
+          <div class="title-bar-text">
+            <span data-i18n="desktop.profile.bar">{{ translations|dictkey:"desktop.profile.bar" }}</span>
           </div>
-
-          <div class="window-body profile">
-            <img src="{% if avatar_url %}{{ avatar_url }}{% else %}{% static 'assets/avatar.jpg' %}{% endif %}" class="avatar">
-            <div>
-              <strong data-i18n="profile.name"></strong><br>
-              Software Engineer<br>
-              Java / Spring / Android / Linux<br><br>
-              <button onclick="window.open('https://github.com/NEXUSPROGECT')">
-                GitHub
-              </button>
-            </div>
+          <div class="title-bar-controls">
+            <button aria-label="Close" onclick="closeWindow('profileWindow')"></button>
+          </div>
+        </header>
+        <div class="window-body profile">
+          <img src="{% if avatar_url %}{{ avatar_url }}{% else %}{% static 'assets/avatar.jpg' %}{% endif %}" class="avatar" alt="{{ translations|dictkey:"profile.name" }}">
+          <div>
+            <h1><strong data-i18n="profile.name">{{ translations|dictkey:"profile.name" }}</strong></h1>
+            <p>Software Engineer<br>Java / Spring / Android / Linux</p>
+            <button onclick="window.open('https://github.com/NEXUSPROGECT')">GitHub</button>
           </div>
         </div>
+      </section>
 
-        <!-- About (Notepad) window -->
-        <div class="window" id="aboutWindow" data-title="About.txt">
-          <div class="title-bar">
-            <div class="title-bar-text"><span data-i18n="desktop.about.bar">About.txt - Notepad</span></div>
-            <div class="title-bar-controls">
-              <button aria-label="Close" onclick="closeWindow('aboutWindow')"></button>
-            </div>
+      <article class="window" id="aboutWindow" data-title="{{ translations|dictkey:"desktop.about" }}" aria-label="{{ translations|dictkey:"desktop.about" }}">
+        <header class="title-bar">
+          <div class="title-bar-text"><span data-i18n="desktop.about.bar">{{ translations|dictkey:"desktop.about.bar" }}</span></div>
+          <div class="title-bar-controls">
+            <button aria-label="Close" onclick="closeWindow('aboutWindow')"></button>
           </div>
-
-          <div class="window-body notepad">
-            <span data-i18n="about.text"></span><span class="cursor">|</span>
-          </div>
+        </header>
+        <div class="window-body notepad">
+          <span data-i18n="about.text">{{ translations|dictkey:"about.text" }}</span><span class="cursor" aria-hidden="true">|</span>
         </div>
+      </article>
 
-        <!-- Projects window -->
-        <div class="window" id="projectsWindow" data-title="My Projects">
-          <div class="title-bar">
-            <div class="title-bar-text"><span data-i18n="desktop.projects.bar">My Projects</span></div>
-            <div class="title-bar-controls">
-              <button aria-label="Close" onclick="closeWindow('projectsWindow')"></button>
-            </div>
+      <section class="window" id="projectsWindow" data-title="{{ translations|dictkey:"desktop.projects" }}" aria-label="{{ translations|dictkey:"desktop.projects" }}">
+        <header class="title-bar">
+          <div class="title-bar-text"><span data-i18n="desktop.projects.bar">{{ translations|dictkey:"desktop.projects.bar" }}</span></div>
+          <div class="title-bar-controls">
+            <button aria-label="Close" onclick="closeWindow('projectsWindow')"></button>
           </div>
-
-          <div class="window-body projects-folder">
-            <div class="projects-container">
-              <div id="projectsList" class="projects-grid"></div>
-              <div class="projects-divider"></div>
-              <div id="projectsPreview" class="projects-preview">
-                <div class="preview-empty" data-i18n="projects.empty">Select a project to view details</div>
+        </header>
+        <div class="window-body projects-folder">
+          <div class="projects-container">
+            <div id="projectsList" class="projects-grid">
+              {% for p in projects %}
+              <div class="project-thumbnail" data-index="{{ forloop.counter0 }}" role="button" tabindex="0">
+                <div class="project-thumbnail-image" style="background-image: url('{{ p.preview }}')" role="img" aria-label="{{ p.title }}"></div>
+                <div class="project-thumbnail-name">{{ p.title }}</div>
               </div>
+              {% endfor %}
+            </div>
+            <div class="projects-divider"></div>
+            <div id="projectsPreview" class="projects-preview">
+              <div class="preview-empty" data-i18n="projects.empty">{{ translations|dictkey:"projects.empty" }}</div>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- Screenshot Viewer Window -->
-        <div class="window" id="screenshotViewerWindow" data-title="Image Viewer" style="display: none; position: absolute;">
-          <div class="title-bar">
-            <div class="title-bar-text">
-              <span id="screenshotViewerTitle" data-i18n="viewer.title">Image Viewer</span>
-            </div>
-            <div class="title-bar-controls">
-              <button aria-label="Close" onclick="closeWindow('screenshotViewerWindow')"></button>
-            </div>
+      <section class="window" id="screenshotViewerWindow" data-title="Image Viewer" style="display: none; position: absolute;" aria-label="Image Viewer">
+        <header class="title-bar">
+          <div class="title-bar-text">
+            <span id="screenshotViewerTitle" data-i18n="viewer.title">{{ translations|dictkey:"viewer.title" }}</span>
           </div>
-          <div class="window-body screenshot-viewer-body">
-            <div class="screenshot-viewer-title-header" id="screenshotViewerHeader"></div>
-            <div class="screenshot-viewer-image-container">
-              <img id="screenshotViewerImage" src="" alt="Screenshot">
-            </div>
-            <div class="screenshot-viewer-description" id="screenshotViewerDescription"></div>
+          <div class="title-bar-controls">
+            <button aria-label="Close" onclick="closeWindow('screenshotViewerWindow')"></button>
           </div>
+        </header>
+        <div class="window-body screenshot-viewer-body">
+          <div class="screenshot-viewer-title-header" id="screenshotViewerHeader"></div>
+          <div class="screenshot-viewer-image-container">
+            <img id="screenshotViewerImage" src="" alt="Screenshot">
+          </div>
+          <div class="screenshot-viewer-description" id="screenshotViewerDescription"></div>
         </div>
+      </section>
 
-        <div class="taskbar">
-          <button class="start-button" onclick="toggleStart()"><span data-i18n="desktop.start"></span></button>
-          <div class="taskbar-windows" id="taskbarWindows"></div>
-          <div class="taskbar-clock" id="clock"></div>
-        </div>
+      <footer class="taskbar">
+        <button class="start-button" onclick="toggleStart()" aria-haspopup="true">
+          <span data-i18n="desktop.start">{{ translations|dictkey:"desktop.start" }}</span>
+        </button>
+        <div class="taskbar-windows" id="taskbarWindows" role="toolbar"></div>
+        <div class="taskbar-clock" id="clock" aria-live="polite" aria-label="Clock"></div>
+      </footer>
 
-        <div class="mobile-footer">
-          © {% now "Y" %} Nexus Project &nbsp;|&nbsp;
-          <span data-i18n="footer.text">Windows XP Style</span>
+      <div class="mobile-footer">
+        <small>&copy; {% now "Y" %} Nexus Project &nbsp;|&nbsp;
+        <span data-i18n="footer.text">{{ translations|dictkey:"footer.text" }}</span></small>
+      </div>
+    </div>
+
+    <nav class="start-menu" id="startMenu" aria-label="Start menu">
+      <div class="start-header">Nexus Project</div>
+      <button onclick="openWindow('profileWindow')"><span data-i18n="desktop.profile">{{ translations|dictkey:"desktop.profile" }}</span></button>
+      <button onclick="openWindow('aboutWindow')"><span data-i18n="desktop.about">{{ translations|dictkey:"desktop.about" }}</span></button>
+      <button onclick="openWindow('projectsWindow')"><span data-i18n="desktop.projects">{{ translations|dictkey:"desktop.projects" }}</span></button>
+      <div class="start-menu-item has-submenu">
+        <button aria-haspopup="true"><span data-i18n="startmenu.language">{{ translations|dictkey:"startmenu.language" }}</span></button>
+        <div class="submenu" role="menu">
+          <button onclick="switchLanguage('ru')" role="menuitem" lang="ru">Русский</button>
+          <button onclick="switchLanguage('en')" role="menuitem" lang="en">English</button>
+          <button onclick="switchLanguage('uk')" role="menuitem" lang="uk">Українська</button>
         </div>
       </div>
-
-      <div class="start-menu" id="startMenu">
-        <div class="start-header">Nexus Project</div>
-
-        <button onclick="openWindow('profileWindow')"><span data-i18n="desktop.profile"></span></button>
-        <button onclick="openWindow('aboutWindow')"><span data-i18n="desktop.about"></span></button>
-        <button onclick="openWindow('projectsWindow')"><span data-i18n="desktop.projects"></span></button>
-        <div class="start-menu-item has-submenu">
-          <button><span data-i18n="startmenu.language">Language ▶</span></button>
-          <div class="submenu">
-            <button onclick="switchLanguage('ru')">Русский</button>
-            <button onclick="switchLanguage('en')">English</button>
-            <button onclick="switchLanguage('uk')">Українська</button>
-          </div>
-        </div>
-        <hr>
-        <button onclick="window.open('https://github.com/NEXUSPROGECT')">GitHub</button>
-      </div>
-  </div>
+      <hr>
+      <button onclick="window.open('https://github.com/NEXUSPROGECT')">GitHub</button>
+    </nav>
+  </main>
   <script src="{% static 'js/i18n.js' %}"></script>
   <script src="{% static 'js/language-switcher.js' %}"></script>
   <script src="{% static 'js/app.js' %}"></script>

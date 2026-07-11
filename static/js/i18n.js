@@ -3,6 +3,7 @@ let translations = {};
 
 async function loadLang(lang) {
   currentLang = lang;
+  document.documentElement.lang = lang;
   const res = await fetch(`/i18n/${lang}.json`);
   translations = await res.json();
   applyTranslations();
