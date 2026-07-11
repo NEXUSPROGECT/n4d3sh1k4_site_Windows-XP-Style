@@ -21,6 +21,9 @@ function applyTranslations() {
       el.textContent = translations[key];
     }
   });
+  if (translations['page.title']) {
+    document.title = translations['page.title'];
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
