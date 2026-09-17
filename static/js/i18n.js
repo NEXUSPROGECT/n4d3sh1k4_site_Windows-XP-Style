@@ -1,4 +1,5 @@
-let currentLang = localStorage.getItem("lang") || "ru";
+const serverLang = document.documentElement.lang;
+let currentLang = localStorage.getItem("lang") || serverLang || "ru";
 let translations = {};
 
 async function loadLang(lang) {

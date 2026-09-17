@@ -74,6 +74,10 @@ TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
+# Определять язык по IP-геолокации (бесплатный ip-api.com).
+# Браузер/система (Accept-Language) всё равно имеют приоритет.
+USE_IP_DETECTION = config('USE_IP_DETECTION', default=False, cast=bool)
+
 # Static files (WhiteNoise)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
