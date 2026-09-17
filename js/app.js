@@ -540,6 +540,9 @@ function initializeProjects(projects) {
       const descText = projectTranslations[descKey] || "";
       
       document.getElementById("screenshotViewerHeader").textContent = titleText;
+
+      const titleBarEl = document.getElementById("screenshotViewerTitle");
+      if (titleBarEl) titleBarEl.textContent = titleText;
       
       const descEl = document.getElementById("screenshotViewerDescription");
       descEl.textContent = descText;
@@ -551,6 +554,9 @@ function initializeProjects(projects) {
       }
       
       openWindow('screenshotViewerWindow');
+
+      const taskbarBtn = openWindows.get("screenshotViewerWindow");
+      if (taskbarBtn) taskbarBtn.textContent = titleText;
       
       const win = document.getElementById("screenshotViewerWindow");
       const desktop = document.querySelector(".desktop");

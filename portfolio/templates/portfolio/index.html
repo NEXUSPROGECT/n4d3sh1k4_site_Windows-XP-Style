@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/favicon/favicon.ico' %}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/favicon/favicon-32x32.png' %}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/favicon/favicon-16x16.png' %}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/favicon/apple-touch-icon.png' %}" />
+    <link rel="manifest" href="{% url 'webmanifest' %}" />
+
     <title data-i18n="page.title">Mikhail Krivosheev | Software Engineer</title>
     <meta name="description" content="{{ translations|dictkey:"about.text"|truncatewords:30 }}" />
     <meta name="google-site-verification" content="rhSFt3F-ySRTkm6s5MoNmHpwMQWxJG28BCMDWtRlQ1g" />
@@ -19,15 +25,17 @@
     <meta property="og:title" content="{{ translations|dictkey:"profile.name" }} — Backend/Android Developer" />
     <meta property="og:description" content="{{ translations|dictkey:"about.text"|truncatewords:25 }}" />
     <meta property="og:url" content="{{ canonical_url }}" />
-    <meta property="og:image" content="{% if avatar_url %}{{ avatar_url }}{% else %}{% static 'assets/avatar.jpg' %}{% endif %}" />
+    <meta property="og:image" content="{{ avatar_abs_url }}" />
     <meta property="og:image:alt" content="{{ translations|dictkey:"profile.name" }}" />
-    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:locale" content="{{ og_locale }}" />
     <meta property="og:site_name" content="Nexus Project" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
 
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="{{ translations|dictkey:"profile.name" }} — Backend/Android Developer" />
     <meta name="twitter:description" content="{{ translations|dictkey:"about.text"|truncatewords:25 }}" />
-    <meta name="twitter:image" content="{% if avatar_url %}{{ avatar_url }}{% else %}{% static 'assets/avatar.jpg' %}{% endif %}" />
+    <meta name="twitter:image" content="{{ avatar_abs_url }}" />
 
     <link rel="stylesheet" href="https://unpkg.com/xp.css" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
@@ -40,7 +48,7 @@
       "jobTitle": "Software Engineer",
       "knowsAbout": ["Java", "Spring", "Android", "Linux"],
       "url": "{{ canonical_url }}",
-      "image": "{% if avatar_url %}{{ avatar_url }}{% else %}{% static 'assets/avatar.jpg' %}{% endif %}",
+      "image": "{{ avatar_abs_url }}",
       "sameAs": "https://github.com/NEXUSPROGECT"
     }
     </script>
@@ -137,6 +145,15 @@
         </header>
         <div class="window-body notepad">
           <span data-i18n="about.text">{{ translations|dictkey:"about.text" }}</span><span class="cursor" aria-hidden="true">|</span>
+          {% if social_links %}
+          <div class="social-links">
+            {% for link in social_links %}
+            <a href="{{ link.url }}" class="social-link" target="_blank" rel="noopener" title="{{ link.name }}">
+              <img src="{{ link.icon_url }}" alt="{{ link.name }}">
+            </a>
+            {% endfor %}
+          </div>
+          {% endif %}
         </div>
       </article>
 

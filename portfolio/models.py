@@ -25,6 +25,25 @@ class SiteSettings(models.Model):
         return obj
 
 
+class SocialLink(models.Model):
+    name = models.CharField(max_length=100, verbose_name='Название соцсети')
+    url = models.URLField(verbose_name='Ссылка')
+    icon = models.ImageField(
+        upload_to='socials/',
+        verbose_name='Иконка (лого)',
+        help_text='Загрузи картинку с логотипом соцсети.',
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name='Порядок')
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Соцсеть'
+        verbose_name_plural = 'Соцсети'
+
+    def __str__(self):
+        return self.name
+
+
 class Translation(models.Model):
     language = models.CharField(max_length=10, verbose_name='Язык')
     key = models.CharField(max_length=200, verbose_name='Ключ')

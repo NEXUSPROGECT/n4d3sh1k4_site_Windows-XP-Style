@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from .models import SiteSettings, Translation, Project, ProjectScreenshot, ProjectTranslation, ProjectScreenshotTranslation, Tag
+from .models import SiteSettings, Translation, Project, ProjectScreenshot, ProjectTranslation, ProjectScreenshotTranslation, Tag, SocialLink
 
 
 @admin.register(SiteSettings)
@@ -34,6 +34,19 @@ class TranslationAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     list_display = ['name']
     search_fields = ['name']
+
+
+@admin.register(SocialLink)
+class SocialLinkAdmin(admin.ModelAdmin):
+    list_display = ['name', 'url', 'order', 'icon_thumb']
+    list_editable = ['order']
+    list_display_links = ['name']
+
+    def icon_thumb(self, obj):
+        if obj.icon:
+            return format_html('<img src="{}" style="height:28px; border-radius:2px;">', obj.icon.url)
+        return '—'
+    icon_thumb.short_description = 'Иконка'
 
 
 class ProjectScreenshotTranslationInline(admin.StackedInline):
