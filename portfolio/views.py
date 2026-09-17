@@ -1,14 +1,15 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
-from .models import SiteSettings, Translation, Project, ProjectTranslation, ProjectScreenshot, Tag
+from .models import SiteSettings, Translation, Project, ProjectTranslation, ProjectScreenshot, Tag, SocialLink
+from .language import detect_language, lang_to_locale
 
 
 def index(request):
     site = SiteSettings.get()
     avatar_url = site.avatar.url if site.avatar else None
 
-    default_lang = 'ru'
+    default_lang = detect_language(request)
     translations = Translation.objects.filter(language=default_lang)
     trans_dict = {t.key: t.value for t in translations}
 
@@ -38,14 +39,23 @@ def index(request):
 
     canonical_url = request.build_absolute_uri('/').rstrip('/')
     available_langs = ['ru', 'en', 'uk']
+    avatar_abs_url = _absolute_url(request, avatar_url, settings.STATIC_URL + 'assets/avatar.jpg')
+
+    social_links = [
+        {'name': sl.name, 'url': sl.url, 'icon_url': _image_url(sl.icon)}
+        for sl in SocialLink.objects.order_by('order')
+    ]
 
     return render(request, 'portfolio/index.html', {
         'avatar_url': avatar_url,
+        'avatar_abs_url': avatar_abs_url,
         'translations': trans_dict,
         'projects': projects,
         'default_lang': default_lang,
+        'og_locale': lang_to_locale(default_lang),
         'canonical_url': canonical_url,
         'available_langs': available_langs,
+        'social_links': social_links,
     })
 
 
@@ -111,6 +121,16 @@ def _image_url(image_field, fallback_path=''):
     return ''
 
 
+def _absolute_url(request, url, fallback_path=''):
+    """Turn a possibly-relative URL into an absolute one for OG/social tags."""
+    if url and (url.startswith('http://') or url.startswith('https://')):
+        return url
+    target = url or fallback_path
+    if not target:
+        return ''
+    return request.build_absolute_uri(target)
+
+
 def _static_url(path):
     if path.startswith('/') or path.startswith('http'):
         return path
@@ -122,6 +142,21 @@ def robots_txt(request):
     scheme = 'https' if request.is_secure() else 'http'
     content = f"User-agent: *\nAllow: /\nSitemap: {scheme}://{host}/sitemap.xml\n"
     return HttpResponse(content, content_type='text/plain')
+
+
+def webmanifest(request):
+    from django.template.loader import render_to_string
+    context = {
+        'start_url': request.build_absolute_uri('/'),
+        'icon_urls': {
+            '192': _static_url('assets/favicon/android-chrome-192x192.png'),
+            '512': _static_url('assets/favicon/android-chrome-512x512.png'),
+        },
+    }
+    return HttpResponse(
+        render_to_string('portfolio/webmanifest.json', context),
+        content_type='application/manifest+json',
+    )
 
 
 def sitemap_xml(request):
