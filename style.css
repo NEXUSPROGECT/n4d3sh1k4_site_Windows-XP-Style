@@ -826,10 +826,60 @@ button {
 }
 
 .screenshot-viewer-image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transform-origin: 0 0;
   user-select: none;
+  will-change: transform;
+}
+
+.screenshot-viewer-image-container.zoomed {
+  cursor: grab;
+}
+
+.screenshot-viewer-image-container.zoomed.dragging {
+  cursor: grabbing;
+}
+
+/* Zoom control bar */
+.screenshot-viewer-zoombar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  margin-bottom: 4px;
+  background: #ece9d8;
+  border: 1px inset #808080;
+}
+
+.screenshot-viewer-zoombar button {
+  min-width: 26px;
+  padding: 2px 8px;
+  font-family: Tahoma, sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  background: #ece9d8;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  cursor: pointer;
+}
+
+.screenshot-viewer-zoombar button:active {
+  border-color: #808080 #ffffff #ffffff #808080;
+}
+
+.screenshot-zoom-label {
+  min-width: 44px;
+  text-align: center;
+  font-family: Tahoma, sans-serif;
+  font-size: 12px;
+  background: #ffffff;
+  border: 1px inset #808080;
+  padding: 2px 4px;
+  color: #000;
 }
 
 .screenshot-viewer-description {

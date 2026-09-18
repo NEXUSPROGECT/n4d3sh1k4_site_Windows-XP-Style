@@ -133,7 +133,13 @@
           </header>
           <div class="window-body screenshot-viewer-body">
             <div class="screenshot-viewer-title-header" id="screenshotViewerHeader"></div>
-            <div class="screenshot-viewer-image-container">
+            <div class="screenshot-viewer-zoombar">
+              <button type="button" onclick="zoomScreenshotButton(-0.5)" aria-label="Zoom out">−</button>
+              <span class="screenshot-zoom-label" id="screenshotZoomLabel">Fit</span>
+              <button type="button" onclick="zoomScreenshotButton(0.5)" aria-label="Zoom in">+</button>
+              <button type="button" onclick="resetScreenshotZoom()">Reset</button>
+            </div>
+            <div class="screenshot-viewer-image-container" id="screenshotViewerImageContainer">
               <img id="screenshotViewerImage" src="" alt="Screenshot">
             </div>
             <div class="screenshot-viewer-description" id="screenshotViewerDescription"></div>

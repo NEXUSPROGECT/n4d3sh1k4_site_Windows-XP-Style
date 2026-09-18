@@ -531,6 +531,7 @@ function initializeProjects(projects) {
       
       const imgEl = document.getElementById("screenshotViewerImage");
       imgEl.src = screenshotUrl;
+      resetScreenshotZoom();
       
       const projectKey = p.id;
       const titleKey = `project.${projectKey}.screenshot.${activeScreenshotIdx}.title`;
@@ -648,3 +649,116 @@ document.addEventListener("click", e => {
     startMenu.style.display = "none";
   }
 });
+
+/* ---------- SCREENSHOT ZOOM & PAN ---------- */
+let screenshotZoom = 1;
+let screenshotZoomPan = { x: 0, y: 0 };
+let screenshotPanning = false;
+let screenshotPanStart = null;
+
+function screenshotViewerEls() {
+  return {
+    container: document.getElementById("screenshotViewerImageContainer"),
+    img: document.getElementById("screenshotViewerImage"),
+    label: document.getElementById("screenshotZoomLabel"),
+  };
+}
+
+function applyScreenshotPanLimits(container, img) {
+  if (!container || !img) return;
+  const vw = container.clientWidth;
+  const vh = container.clientHeight;
+  const w = img.offsetWidth * screenshotZoom;
+  const h = img.offsetHeight * screenshotZoom;
+  if (w <= vw) screenshotZoomPan.x = 0;
+  else screenshotZoomPan.x = Math.min(0, Math.max(vw - w, screenshotZoomPan.x));
+  if (h <= vh) screenshotZoomPan.y = 0;
+  else screenshotZoomPan.y = Math.min(0, Math.max(vh - h, screenshotZoomPan.y));
+}
+
+function applyScreenshotZoom() {
+  const { container, img, label } = screenshotViewerEls();
+  if (!img) return;
+  applyScreenshotPanLimits(container, img);
+  img.style.transform =
+    `translate(${screenshotZoomPan.x}px, ${screenshotZoomPan.y}px) scale(${screenshotZoom})`;
+  if (label) {
+    label.textContent = screenshotZoom <= 1.0001 ? "Fit" : Math.round(screenshotZoom * 100) + "%";
+  }
+  if (container) {
+    container.classList.toggle("zoomed", screenshotZoom > 1.0001);
+  }
+}
+
+function screenshotZoomAt(mx, my, newZoom) {
+  screenshotZoomPan.x = mx - (mx - screenshotZoomPan.x) * (newZoom / screenshotZoom);
+  screenshotZoomPan.y = my - (my - screenshotZoomPan.y) * (newZoom / screenshotZoom);
+  screenshotZoom = newZoom;
+  applyScreenshotZoom();
+}
+
+function zoomScreenshotButton(delta) {
+  const { container } = screenshotViewerEls();
+  if (!container) return;
+  const rect = container.getBoundingClientRect();
+  screenshotZoomAt(rect.width / 2, rect.height / 2, Math.min(8, Math.max(1, screenshotZoom + delta)));
+}
+
+function resetScreenshotZoom() {
+  screenshotZoom = 1;
+  screenshotZoomPan = { x: 0, y: 0 };
+  applyScreenshotZoom();
+}
+
+(function setupScreenshotZoom() {
+  const container = document.getElementById("screenshotViewerImageContainer");
+  if (!container) return;
+
+  container.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const rect = container.getBoundingClientRect();
+    const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+    screenshotZoomAt(
+      e.clientX - rect.left,
+      e.clientY - rect.top,
+      Math.min(8, Math.max(1, screenshotZoom * factor))
+    );
+  }, { passive: false });
+
+  container.addEventListener("dblclick", (e) => {
+    const rect = container.getBoundingClientRect();
+    const target = screenshotZoom > 1.0001 ? 1 : 2;
+    screenshotZoomAt(e.clientX - rect.left, e.clientY - rect.top, target);
+  });
+
+  container.addEventListener("mousedown", (e) => {
+    if (screenshotZoom <= 1.0001) return;
+    screenshotPanning = true;
+    screenshotPanStart = {
+      x: e.clientX,
+      y: e.clientY,
+      panX: screenshotZoomPan.x,
+      panY: screenshotZoomPan.y,
+    };
+    container.classList.add("dragging");
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!screenshotPanning || !screenshotPanStart) return;
+    screenshotZoomPan.x = screenshotPanStart.panX + (e.clientX - screenshotPanStart.x);
+    screenshotZoomPan.y = screenshotPanStart.panY + (e.clientY - screenshotPanStart.y);
+    applyScreenshotZoom();
+  });
+
+  document.addEventListener("mouseup", () => {
+    screenshotPanning = false;
+    screenshotPanStart = null;
+    if (container) container.classList.remove("dragging");
+  });
+
+  window.addEventListener("resize", () => {
+    if (container.offsetParent !== null) {
+      applyScreenshotZoom();
+    }
+  });
+})();
