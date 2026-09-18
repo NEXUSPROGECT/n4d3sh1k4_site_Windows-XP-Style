@@ -171,7 +171,7 @@ document.addEventListener("mousemove", e => {
         break;
       case 'aboutWindow':
         minWidth = 352;
-        minHeight = 240;
+        minHeight = 200;
         break;
       case 'projectsWindow':
         minWidth = 650;
@@ -301,7 +301,7 @@ function initializeWindowLayout() {
       offsetX: -130,
       offsetY: -250,
       minWidth: 352,
-      minHeight: 240
+      minHeight: 200
     },
     projectsWindow: {
       width: Math.min(700, viewportWidth * 0.85),
