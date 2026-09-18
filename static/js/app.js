@@ -171,7 +171,7 @@ document.addEventListener("mousemove", e => {
         break;
       case 'aboutWindow':
         minWidth = 352;
-        minHeight = 154;
+        minHeight = 240;
         break;
       case 'projectsWindow':
         minWidth = 650;
@@ -301,7 +301,7 @@ function initializeWindowLayout() {
       offsetX: -130,
       offsetY: -250,
       minWidth: 352,
-      minHeight: 154
+      minHeight: 240
     },
     projectsWindow: {
       width: Math.min(700, viewportWidth * 0.85),
@@ -639,10 +639,10 @@ function applyScreenshotPanLimits(container, img) {
   const vh = container.clientHeight;
   const w = img.offsetWidth * screenshotZoom;
   const h = img.offsetHeight * screenshotZoom;
-  if (w <= vw) screenshotZoomPan.x = 0;
-  else screenshotZoomPan.x = Math.min(0, Math.max(vw - w, screenshotZoomPan.x));
-  if (h <= vh) screenshotZoomPan.y = 0;
-  else screenshotZoomPan.y = Math.min(0, Math.max(vh - h, screenshotZoomPan.y));
+  const maxX = Math.max(0, (w - vw) / 2);
+  const maxY = Math.max(0, (h - vh) / 2);
+  screenshotZoomPan.x = Math.min(maxX, Math.max(-maxX, screenshotZoomPan.x));
+  screenshotZoomPan.y = Math.min(maxY, Math.max(-maxY, screenshotZoomPan.y));
 }
 
 function applyScreenshotZoom() {
@@ -660,8 +660,14 @@ function applyScreenshotZoom() {
 }
 
 function screenshotZoomAt(mx, my, newZoom) {
-  screenshotZoomPan.x = mx - (mx - screenshotZoomPan.x) * (newZoom / screenshotZoom);
-  screenshotZoomPan.y = my - (my - screenshotZoomPan.y) * (newZoom / screenshotZoom);
+  const { container } = screenshotViewerEls();
+  const cx = container ? container.clientWidth / 2 : 0;
+  const cy = container ? container.clientHeight / 2 : 0;
+  const ux = mx - cx;
+  const uy = my - cy;
+  const factor = newZoom / screenshotZoom;
+  screenshotZoomPan.x = ux - (ux - screenshotZoomPan.x) * factor;
+  screenshotZoomPan.y = uy - (uy - screenshotZoomPan.y) * factor;
   screenshotZoom = newZoom;
   applyScreenshotZoom();
 }
@@ -702,6 +708,7 @@ function resetScreenshotZoom() {
 
   container.addEventListener("mousedown", (e) => {
     if (screenshotZoom <= 1.0001) return;
+    e.preventDefault();
     screenshotPanning = true;
     screenshotPanStart = {
       x: e.clientX,
