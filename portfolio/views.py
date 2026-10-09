@@ -40,6 +40,7 @@ def index(request):
     canonical_url = request.build_absolute_uri('/').rstrip('/')
     available_langs = ['ru', 'en', 'uk']
     avatar_abs_url = _absolute_url(request, avatar_url, settings.STATIC_URL + 'assets/avatar.jpg')
+    og_image_url = _absolute_url(request, '', settings.STATIC_URL + 'assets/og/og-preview.jpg')
 
     social_links = [
         {'name': sl.name, 'url': sl.url, 'icon_url': _image_url(sl.icon)}
@@ -49,6 +50,7 @@ def index(request):
     return render(request, 'portfolio/index.html', {
         'avatar_url': avatar_url,
         'avatar_abs_url': avatar_abs_url,
+        'og_image_url': og_image_url,
         'translations': trans_dict,
         'projects': projects,
         'default_lang': default_lang,
