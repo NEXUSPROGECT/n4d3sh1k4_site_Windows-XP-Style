@@ -186,7 +186,7 @@ document.addEventListener("mousemove", e => {
       case 'aboutWindow':
         // Notepad text display area + social links
         minWidth = 352;
-        minHeight = 200;
+        minHeight = 220;
         break;
       case 'projectsWindow':
         // Grid (max-width 450px) + divider (2px) + preview pane
@@ -323,7 +323,7 @@ function initializeWindowLayout() {
       offsetX: -130,  // Offset from center
       offsetY: -250,
       minWidth: 352,
-      minHeight: 200
+      minHeight: 220
     },
     projectsWindow: {
       width: Math.min(700, viewportWidth * 0.85),
