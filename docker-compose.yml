@@ -16,7 +16,7 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio
+    image: coollabsio/minio:latest
     volumes:
       - minio_data:/data
     env_file: .env
@@ -34,28 +34,10 @@ services:
       - "127.0.0.1:9010:9000"
       - "127.0.0.1:9011:9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD-SHELL", "mc alias set local http://localhost:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD >/dev/null 2>&1 && mc admin info local >/dev/null 2>&1"]
       interval: 15s
       timeout: 10s
       retries: 3
-
-  createbuckets:
-    image: minio/mc:latest
-    depends_on:
-      minio:
-        condition: service_healthy
-    env_file: .env
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-      MINIO_BUCKET: ${MINIO_BUCKET}
-    entrypoint: >
-      /bin/sh -c " until mc alias set myminio http://minio:9000
-      $$MINIO_ACCESS_KEY $$MINIO_SECRET_KEY; do
-        echo 'Waiting for MinIO...' && sleep 2;
-      done && mc mb myminio/$$MINIO_BUCKET --ignore-existing && mc anonymous set
-      public myminio/$$MINIO_BUCKET && exit 0 "
-    restart: no
 
   web:
     image: ghcr.io/nexusprogect/n4d3sh1k4_site_windows-xp-style:main
@@ -66,10 +48,11 @@ services:
       db:
         condition: service_healthy
       minio:
-        condition: service_healthy
+        condition: service_started
     restart: unless-stopped
     command: >
-      sh -c "python manage.py migrate --noinput &&
+      sh -c "python manage.py ensure_buckets &&
+             python manage.py migrate --noinput &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
       --timeout 30"
 
