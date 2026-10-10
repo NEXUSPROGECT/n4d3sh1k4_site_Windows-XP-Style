@@ -89,7 +89,6 @@ class MinIOStorage(Storage):
             self.bucket_name,
             name,
             ExtraArgs={
-                'ACL': self.default_acl,
                 'ContentType': content_type
             },
         )

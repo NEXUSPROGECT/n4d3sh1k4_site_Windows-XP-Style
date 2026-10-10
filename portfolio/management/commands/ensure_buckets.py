@@ -59,7 +59,6 @@ class Command(BaseCommand):
                 raise
 
     def _make_public(self, client, bucket):
-        client.put_bucket_acl(Bucket=bucket, ACL='public-read')
         policy = {
             'Version': '2012-10-17',
             'Statement': [
