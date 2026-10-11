@@ -11,31 +11,34 @@
     <link rel="manifest" href="{% url 'webmanifest' %}" />
 
     <title data-i18n="page.title">Mikhail Krivosheev | Software Engineer</title>
-    <meta name="description" content="{{ translations|dictkey:"about.text"|truncatewords:30 }}" />
+    <meta name="description" content="{% if translations|dictkey:"og.description" %}{{ translations|dictkey:"og.description" }}{% else %}{{ translations|dictkey:"about.text"|truncatewords:30 }}{% endif %}" />
     <meta name="google-site-verification" content="rhSFt3F-ySRTkm6s5MoNmHpwMQWxJG28BCMDWtRlQ1g" />
 
     <link rel="canonical" href="{{ canonical_url }}" />
 
     {% for lang_code in available_langs %}
-    <link rel="alternate" hreflang="{{ lang_code }}" href="{{ canonical_url }}" />
+    <link rel="alternate" hreflang="{{ lang_code }}" href="{{ canonical_url }}?lang={{ lang_code }}" />
     {% endfor %}
     <link rel="alternate" hreflang="x-default" href="{{ canonical_url }}" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="{{ translations|dictkey:"profile.name" }} — Backend/Android Developer" />
-    <meta property="og:description" content="{{ translations|dictkey:"about.text"|truncatewords:25 }}" />
-    <meta property="og:url" content="{{ canonical_url }}" />
+    <meta property="og:title" content="{% if translations|dictkey:"og.title" %}{{ translations|dictkey:"og.title" }}{% else %}{{ translations|dictkey:"profile.name" }} — Backend/Android Developer{% endif %}" />
+    <meta property="og:description" content="{% if translations|dictkey:"og.description" %}{{ translations|dictkey:"og.description" }}{% else %}{{ translations|dictkey:"about.text"|truncatewords:25 }}{% endif %}" />
+    <meta property="og:url" content="{{ canonical_url }}{% if request.GET.lang %}?lang={{ request.GET.lang }}{% endif %}" />
     <meta property="og:image" content="{{ og_image_url }}?v=3" />
     <meta property="og:image:alt" content="{{ translations|dictkey:"profile.name" }}" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:locale" content="{{ og_locale }}" />
+    {% if og_locale != 'en_US' %}<meta property="og:locale:alternate" content="en_US" />{% endif %}
+    {% if og_locale != 'ru_RU' %}<meta property="og:locale:alternate" content="ru_RU" />{% endif %}
+    {% if og_locale != 'uk_UA' %}<meta property="og:locale:alternate" content="uk_UA" />{% endif %}
     <meta property="og:site_name" content="Nexus Project" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ translations|dictkey:"profile.name" }} — Backend/Android Developer" />
-    <meta name="twitter:description" content="{{ translations|dictkey:"about.text"|truncatewords:25 }}" />
+    <meta name="twitter:title" content="{% if translations|dictkey:"og.title" %}{{ translations|dictkey:"og.title" }}{% else %}{{ translations|dictkey:"profile.name" }} — Backend/Android Developer{% endif %}" />
+    <meta name="twitter:description" content="{% if translations|dictkey:"og.description" %}{{ translations|dictkey:"og.description" }}{% else %}{{ translations|dictkey:"about.text"|truncatewords:25 }}{% endif %}" />
     <meta name="twitter:image" content="{{ og_image_url }}?v=3" />
 
     <link rel="stylesheet" href="https://unpkg.com/xp.css" />

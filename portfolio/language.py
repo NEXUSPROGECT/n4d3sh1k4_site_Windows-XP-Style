@@ -9,7 +9,7 @@ from django.core.cache import cache
 logger = logging.getLogger(__name__)
 
 SUPPORTED_LANGS = {'ru', 'en', 'uk'}
-DEFAULT_LANG = 'ru'
+DEFAULT_LANG = 'en'
 _IP_API = 'http://ip-api.com/json/{ip}?fields=countryCode'
 _IP_TIMEOUT = 2
 
@@ -17,9 +17,12 @@ _IP_TIMEOUT = 2
 def detect_language(request):
     """Detect the most suitable language for the request.
 
-    Priority: explicit user cookie -> Accept-Language (browser/OS) ->
-    IP geolocation (optional) -> default 'ru'.
+    Priority: query param (?lang=) -> explicit user cookie ->
+    Accept-Language (browser/OS) -> IP geolocation (optional) -> default 'en'.
     """
+    lang = (request.GET.get('lang') or '').lower()
+    if lang in SUPPORTED_LANGS:
+        return lang
     lang = _from_cookie(request)
     if not lang:
         lang = _from_accept_language(request)
