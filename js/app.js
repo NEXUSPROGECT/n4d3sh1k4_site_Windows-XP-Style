@@ -313,7 +313,7 @@ function initializeWindowLayout() {
       width: Math.min(307, viewportWidth * 0.3),
       height: Math.min(200, viewportHeight * 0.25),
       offsetX: -450, // Offset from center
-      offsetY: -250,
+      offsetY: -260,
       minWidth: 280,
       minHeight: 195
     },
@@ -321,7 +321,7 @@ function initializeWindowLayout() {
       width: Math.min(380, viewportWidth * 0.35),
       height: Math.min(300, viewportHeight * 0.15),
       offsetX: -130,  // Offset from center
-      offsetY: -250,
+      offsetY: -260,
       minWidth: 352,
       minHeight: 220
     },
@@ -329,7 +329,7 @@ function initializeWindowLayout() {
       width: Math.min(700, viewportWidth * 0.85),
       height: Math.min(360, viewportHeight * 0.65),
       offsetX: -450, // Center horizontally
-      offsetY: -40,   // Below other windows
+      offsetY: 0,   // Below other windows
       minWidth: 650,
       minHeight: 350
     },
