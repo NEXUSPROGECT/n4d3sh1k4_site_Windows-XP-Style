@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Tailscale
-        uses: tailscale/github-action@v2
+        uses: tailscale/github-action@v4
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
@@ -61,7 +61,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          
+
           cat << 'ENV_FILE' > .env
           SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
           DEBUG=${{ secrets.DJANGO_DEBUG }}
@@ -78,9 +78,9 @@ jobs:
           MINIO_PUBLIC_DOMAIN=${{ secrets.MINIO_PUBLIC_DOMAIN }}
           MINIO_SECURE=True
           ENV_FILE
-          
+
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} "mkdir -p ~/me-xp"
-          
+
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml .env ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }}:~/me-xp/
-          
+
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_TAILSCALE_IP }} "cd ~/me-xp && echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin && docker compose pull && docker compose up -d --remove-orphans && docker image prune -f"
