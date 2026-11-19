@@ -722,10 +722,9 @@ button {
 }
 
 .start-menu {
-  position: relative;
-  display: inline-block;
-  bottom: 14rem;
-  left: 2px;
+  position: absolute;
+  bottom: 32px;
+  left: 0;
   width: 220px;
   background: #e1e1e1;
   border: 2px solid #808080;

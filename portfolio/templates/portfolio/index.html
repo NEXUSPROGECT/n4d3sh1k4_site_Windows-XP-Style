@@ -218,28 +218,28 @@
         <div class="taskbar-clock" id="clock" aria-live="polite" aria-label="Clock"></div>
       </footer>
 
+      <nav class="start-menu" id="startMenu" aria-label="Start menu">
+        <div class="start-header">Nexus Project</div>
+        <button onclick="openWindow('profileWindow')"><span data-i18n="desktop.profile">{{ translations|dictkey:"desktop.profile" }}</span></button>
+        <button onclick="openWindow('aboutWindow')"><span data-i18n="desktop.about">{{ translations|dictkey:"desktop.about" }}</span></button>
+        <button onclick="openWindow('projectsWindow')"><span data-i18n="desktop.projects">{{ translations|dictkey:"desktop.projects" }}</span></button>
+        <div class="start-menu-item has-submenu">
+          <button aria-haspopup="true"><span data-i18n="startmenu.language">{{ translations|dictkey:"startmenu.language" }}</span></button>
+          <div class="submenu" role="menu">
+            <button onclick="switchLanguage('ru')" role="menuitem" lang="ru">Русский</button>
+            <button onclick="switchLanguage('en')" role="menuitem" lang="en">English</button>
+            <button onclick="switchLanguage('uk')" role="menuitem" lang="uk">Українська</button>
+          </div>
+        </div>
+        <hr>
+        <button onclick="window.open('https://github.com/NEXUSPROGECT')">GitHub</button>
+      </nav>
+
       <div class="mobile-footer">
         <small>&copy; {% now "Y" %} Nexus Project &nbsp;|&nbsp;
         <span data-i18n="footer.text">{{ translations|dictkey:"footer.text" }}</span></small>
       </div>
     </div>
-
-    <nav class="start-menu" id="startMenu" aria-label="Start menu">
-      <div class="start-header">Nexus Project</div>
-      <button onclick="openWindow('profileWindow')"><span data-i18n="desktop.profile">{{ translations|dictkey:"desktop.profile" }}</span></button>
-      <button onclick="openWindow('aboutWindow')"><span data-i18n="desktop.about">{{ translations|dictkey:"desktop.about" }}</span></button>
-      <button onclick="openWindow('projectsWindow')"><span data-i18n="desktop.projects">{{ translations|dictkey:"desktop.projects" }}</span></button>
-      <div class="start-menu-item has-submenu">
-        <button aria-haspopup="true"><span data-i18n="startmenu.language">{{ translations|dictkey:"startmenu.language" }}</span></button>
-        <div class="submenu" role="menu">
-          <button onclick="switchLanguage('ru')" role="menuitem" lang="ru">Русский</button>
-          <button onclick="switchLanguage('en')" role="menuitem" lang="en">English</button>
-          <button onclick="switchLanguage('uk')" role="menuitem" lang="uk">Українська</button>
-        </div>
-      </div>
-      <hr>
-      <button onclick="window.open('https://github.com/NEXUSPROGECT')">GitHub</button>
-    </nav>
   </main>
   <script src="{% static 'js/i18n.js' %}"></script>
   <script src="{% static 'js/language-switcher.js' %}"></script>
