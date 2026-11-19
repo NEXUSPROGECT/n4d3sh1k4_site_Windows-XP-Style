@@ -25,6 +25,9 @@ function applyTranslations() {
   if (translations['page.title']) {
     document.title = translations['page.title'];
   }
+  if (typeof refitAboutWindow === 'function') {
+    refitAboutWindow();
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -36,6 +36,18 @@ function constrainWindowPosition(win) {
 function openWindow(id) {
   const win = document.getElementById(id);
   win.style.display = "block";
+
+  // Fit the About window to its text + social links on first open instead of
+  // leaving the extra space reserved by its minimum height.
+  if (id === "aboutWindow") {
+    if (win.dataset.fitHeight !== "1") {
+      fitAboutWindow(win);
+      win.dataset.fitHeight = "1";
+    } else {
+      refitAboutWindow();
+    }
+  }
+
   focusWindow(win);
 
   if (!openWindows.has(id)) {
@@ -102,6 +114,70 @@ let activeWindow = null;
 let dragging = false, resizing = false;
 let resizeMode = null;
 let startX, startY, startWidth, startHeight, startLeft, startTop;
+let startFitHeight = 0;
+
+// Height of the window frame around its body (title bar, body margins, window padding).
+function getWindowChromeHeight(win) {
+  const titleBar = win.querySelector(".title-bar");
+  const body = win.querySelector(".window-body");
+  if (!titleBar || !body) return 0;
+
+  const winStyle = window.getComputedStyle(win);
+  const bodyStyle = window.getComputedStyle(body);
+
+  return titleBar.getBoundingClientRect().height +
+    (parseFloat(bodyStyle.marginTop) || 0) +
+    (parseFloat(bodyStyle.marginBottom) || 0) +
+    (parseFloat(winStyle.paddingTop) || 0) +
+    (parseFloat(winStyle.paddingBottom) || 0);
+}
+
+function getWindowVerticalPadding(win) {
+  const winStyle = window.getComputedStyle(win);
+  return (parseFloat(winStyle.paddingTop) || 0) +
+    (parseFloat(winStyle.paddingBottom) || 0);
+}
+
+// Smallest height value for win.style.height that shows all content without
+// empty space. Must be called while the window is visible with its final width.
+function getWindowFitHeight(win) {
+  const body = win.querySelector(".window-body");
+  if (!body) return 0;
+
+  const total = getWindowChromeHeight(win) + body.scrollHeight;
+  // win.style.height sets the content box unless box-sizing is border-box.
+  return Math.ceil(
+    window.getComputedStyle(win).boxSizing === "border-box"
+      ? total
+      : total - getWindowVerticalPadding(win)
+  );
+}
+
+// Same height as win.offsetHeight, for comparisons with rendered sizes.
+function getWindowFitOuterHeight(win) {
+  const fitHeight = getWindowFitHeight(win);
+  return window.getComputedStyle(win).boxSizing === "border-box"
+    ? fitHeight
+    : fitHeight + getWindowVerticalPadding(win);
+}
+
+function fitAboutWindow(win) {
+  win.style.height = getWindowFitHeight(win) + "px";
+  // Remember the fitted outer height so later content changes (language
+  // switch) can be distinguished from a height the user set manually.
+  win.dataset.fitOuterHeight = String(getWindowFitOuterHeight(win));
+}
+
+// Re-fit the About window after its text changed, unless the user resized it.
+function refitAboutWindow() {
+  const win = document.getElementById("aboutWindow");
+  if (!win || win.style.display === "none" || win.dataset.fitHeight !== "1") return;
+
+  const previousFit = parseFloat(win.dataset.fitOuterHeight);
+  if (previousFit && Math.abs(win.offsetHeight - previousFit) > 1) return;
+
+  fitAboutWindow(win);
+}
 
 document.querySelectorAll(".window").forEach(win => {
   const titleBar = win.querySelector(".title-bar");
@@ -135,6 +211,7 @@ document.querySelectorAll(".window").forEach(win => {
       startY = e.clientY;
       startWidth = win.offsetWidth;
       startHeight = win.offsetHeight;
+      startFitHeight = win.id === "aboutWindow" ? getWindowFitOuterHeight(win) : 0;
       const computedStyle = window.getComputedStyle(win);
       startLeft = parseFloat(computedStyle.left);
       startTop = parseFloat(computedStyle.top);
@@ -171,7 +248,9 @@ document.addEventListener("mousemove", e => {
         break;
       case 'aboutWindow':
         minWidth = 352;
-        minHeight = 220;
+        // Safety floor only: the real minimum is the content height below,
+        // because the text re-wraps when the width changes.
+        minHeight = 100;
         break;
       case 'projectsWindow':
         minWidth = 650;
@@ -201,6 +280,15 @@ document.addEventListener("mousemove", e => {
       newLeft = startLeft + actualDeltaWidth;
     }
 
+    // Apply the width before measuring, because the About text re-wraps.
+    activeWindow.style.width = newWidth + "px";
+
+    let aboutFitHeight = 0;
+    if (activeWindow.id === "aboutWindow") {
+      aboutFitHeight = getWindowFitHeight(activeWindow);
+      minHeight = Math.max(minHeight, aboutFitHeight);
+    }
+
     if (resizeMode.includes("s")) {
       newHeight = Math.max(minHeight, startHeight + deltaY);
     }
@@ -211,7 +299,21 @@ document.addEventListener("mousemove", e => {
       newTop = startTop + actualDeltaHeight;
     }
 
-    activeWindow.style.width = newWidth + "px";
+    // Keep the About window fitted to its content while it is being resized
+    // horizontally, unless the user is explicitly making it taller.
+    if (activeWindow.id === "aboutWindow" && startHeight <= startFitHeight + 1) {
+      const makingTaller = resizeMode.includes("s") ? deltaY > 0 :
+        resizeMode.includes("n") ? deltaY < 0 : false;
+
+      if (!makingTaller) {
+        newHeight = aboutFitHeight;
+        activeWindow.dataset.fitOuterHeight = String(getWindowFitOuterHeight(activeWindow));
+        if (resizeMode.includes("n")) {
+          newTop = startTop + startHeight - getWindowFitOuterHeight(activeWindow);
+        }
+      }
+    }
+
     activeWindow.style.height = newHeight + "px";
     activeWindow.style.left = newLeft + "px";
     activeWindow.style.top = newTop + "px";
@@ -301,7 +403,7 @@ function initializeWindowLayout() {
       offsetX: -130,
       offsetY: -260,
       minWidth: 352,
-      minHeight: 220
+      minHeight: 150
     },
     projectsWindow: {
       width: Math.min(700, viewportWidth * 0.85),
@@ -325,7 +427,15 @@ function initializeWindowLayout() {
     const win = document.getElementById(id);
     if (win) {
       const finalWidth = Math.max(config.width, config.minWidth);
-      const finalHeight = Math.max(config.height, config.minHeight);
+      win.style.width = Math.round(finalWidth) + "px";
+
+      let finalHeight = Math.max(config.height, config.minHeight);
+      // The About window is sized to its content, so re-measure it if this
+      // layout pass happens after it was opened.
+      if (id === "aboutWindow" && win.style.display !== "none" &&
+          win.dataset.fitHeight === "1") {
+        finalHeight = getWindowFitHeight(win);
+      }
 
       let left = centerX + config.offsetX;
       let top = centerY + config.offsetY;
@@ -333,11 +443,15 @@ function initializeWindowLayout() {
       left = Math.max(padding, Math.min(left, viewportWidth - finalWidth - padding));
       top = Math.max(padding, Math.min(top, viewportHeight - finalHeight - padding - 40));
 
-      win.style.width = Math.round(finalWidth) + "px";
       win.style.height = Math.round(finalHeight) + "px";
       win.style.left = Math.round(left) + "px";
       win.style.top = Math.round(top) + "px";
       win.style.right = "auto";
+
+      if (id === "aboutWindow" && win.style.display !== "none" &&
+          win.dataset.fitHeight === "1") {
+        win.dataset.fitOuterHeight = String(getWindowFitOuterHeight(win));
+      }
     }
   });
 }
