@@ -55,6 +55,76 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
+          log-mode: normal
+
+      - name: Deployment diagnostics
+        continue-on-error: true
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_HOST: ${{ secrets.SERVER_TAILSCALE_IP }}
+        run: |
+          set +e
+
+          write_key() {
+            mkdir -p ~/.ssh
+            printf '%s' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+            if [ -n "$(tail -c 1 ~/.ssh/id_rsa)" ]; then
+              printf '\n' >> ~/.ssh/id_rsa
+            fi
+            chmod 600 ~/.ssh/id_rsa
+          }
+
+          echo "::group::SSH target"
+          echo "user: ${SERVER_USER:0:2}***${SERVER_USER: -1} (length ${#SERVER_USER})"
+          echo "host: ${SERVER_HOST:0:3}***${SERVER_HOST: -2} (length ${#SERVER_HOST})"
+          case "$SERVER_USER" in *[[:space:]]) echo "WARNING: user has trailing whitespace";; esac
+          case "$SERVER_HOST" in *[[:space:]]) echo "WARNING: host has trailing whitespace";; esac
+          getent hosts "$SERVER_HOST"
+          echo "::endgroup::"
+
+          echo "::group::SSH key"
+          write_key
+          echo "bytes: $(wc -c < ~/.ssh/id_rsa)"
+          echo "lines: $(wc -l < ~/.ssh/id_rsa)"
+          echo "first line: $(head -n 1 ~/.ssh/id_rsa)"
+          echo "last line:  $(tail -n 1 ~/.ssh/id_rsa)"
+          if ssh-keygen -y -P "" -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub; then
+            echo "public key fingerprint:"
+            ssh-keygen -lf ~/.ssh/id_rsa.pub
+          else
+            echo "::error::SERVER_SSH_KEY is not a valid unencrypted OpenSSH private key"
+          fi
+          echo "::endgroup::"
+
+          echo "::group::Tailscale"
+          tailscale version
+          echo "--- self ---"
+          tailscale status --json | jq '{backendState: .BackendState, self: (.Self | {HostName, DNSName, TailscaleIPs, Tags, Online})}'
+          echo "--- server peer ---"
+          tailscale status --json | jq --arg host "$SERVER_HOST" '(.Peer // {}) | to_entries[] | .value | select(((.TailscaleIPs // []) | index($host)) or ((.DNSName // "") | startswith($host))) | {HostName, DNSName, TailscaleIPs, Tags, Online, Active, Relay, CurAddr, LastSeen, OS}'
+          echo "--- whois ---"
+          tailscale whois --json "$SERVER_HOST" | jq '{name: .Node.ComputedName, dns: .Node.Name, tags: .Node.Tags, os: .Node.Hostinfo.OS, user: .User.LoginName}'
+          echo "--- prefs ---"
+          tailscale debug prefs | jq '{Hostname, AdvertiseTags, RunSSH, WantRunning, LoggedOut}'
+          echo "--- ping ---"
+          tailscale ping --c=3 "$SERVER_HOST"
+          echo "::endgroup::"
+
+          echo "::group::SSH port and host keys"
+          if timeout 5 bash -c "</dev/tcp/$SERVER_HOST/22"; then
+            echo "port 22: open"
+          else
+            echo "port 22: closed or filtered"
+          fi
+          ssh-keyscan -T 5 "$SERVER_HOST" 2>/dev/null | ssh-keygen -lf -
+          echo "::endgroup::"
+
+          echo "::group::SSH verbose"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=10 -i ~/.ssh/id_rsa -vvv \
+              "$SERVER_USER@$SERVER_HOST" true 2>&1 | tee /tmp/ssh-debug.log
+          echo "::endgroup::"
 
       - name: Deploy project
         env:
@@ -63,8 +133,16 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_TAILSCALE_IP }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+          printf '%s' "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+          if [ -n "$(tail -c 1 ~/.ssh/id_rsa)" ]; then
+            printf '\n' >> ~/.ssh/id_rsa
+          fi
           chmod 600 ~/.ssh/id_rsa
+
+          # Fail here with a clear message if the secret is not a valid,
+          # passphrase-less private key, and print its fingerprint for comparison.
+          ssh-keygen -y -P "" -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+          ssh-keygen -lf ~/.ssh/id_rsa.pub
 
           cat << 'ENV_FILE' > .env
           SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
