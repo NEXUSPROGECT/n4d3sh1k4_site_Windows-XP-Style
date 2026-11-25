@@ -87,11 +87,21 @@ jobs:
           write_key
           echo "bytes: $(wc -c < ~/.ssh/id_rsa)"
           echo "lines: $(wc -l < ~/.ssh/id_rsa)"
-          echo "first line: $(head -n 1 ~/.ssh/id_rsa)"
-          echo "last line:  $(tail -n 1 ~/.ssh/id_rsa)"
+          if [ "$(head -n 1 ~/.ssh/id_rsa)" = "-----BEGIN OPENSSH PRIVATE KEY-----" ]; then
+            echo "header: OK (OpenSSH private key)"
+          else
+            echo "header: UNEXPECTED (not an OpenSSH private key)"
+          fi
+          if [ "$(tail -n 1 ~/.ssh/id_rsa)" = "-----END OPENSSH PRIVATE KEY-----" ]; then
+            echo "footer: OK (key is not truncated)"
+          else
+            echo "footer: UNEXPECTED (key is truncated or in another format)"
+          fi
           if ssh-keygen -y -P "" -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub; then
             echo "public key fingerprint:"
             ssh-keygen -lf ~/.ssh/id_rsa.pub
+            echo "public key (add this line to authorized_keys):"
+            cat ~/.ssh/id_rsa.pub
           else
             echo "::error::SERVER_SSH_KEY is not a valid unencrypted OpenSSH private key"
           fi
