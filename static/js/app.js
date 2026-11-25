@@ -296,6 +296,10 @@ document.addEventListener("mousemove", e => {
         minWidth = 650;
         minHeight = 350;
         break;
+      case 'leaderboardWindow':
+        minWidth = 380;
+        minHeight = 260;
+        break;
       case 'screenshotViewerWindow':
         minWidth = 350;
         minHeight = 300;
@@ -452,6 +456,14 @@ function initializeWindowLayout() {
       offsetY: 0,
       minWidth: 650,
       minHeight: 350
+    },
+    leaderboardWindow: {
+      width: Math.min(440, viewportWidth * 0.42),
+      height: Math.min(430, viewportHeight * 0.55),
+      offsetX: 220,
+      offsetY: -30,
+      minWidth: 380,
+      minHeight: 260
     },
     screenshotViewerWindow: {
       width: Math.min(600, viewportWidth * 0.7),

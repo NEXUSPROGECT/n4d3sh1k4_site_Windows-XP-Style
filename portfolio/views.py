@@ -1,7 +1,18 @@
+import json
+import re
+import uuid
+
+from django.core.cache import cache
+from django.db import transaction
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
-from .models import SiteSettings, Translation, Project, ProjectTranslation, ProjectScreenshot, Tag, SocialLink
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from .models import (
+    SiteSettings, Translation, Project, ProjectTranslation,
+    ProjectScreenshot, Tag, SocialLink, LeaderboardEntry,
+)
 from .language import detect_language, lang_to_locale
 
 
@@ -59,6 +70,67 @@ def index(request):
         'available_langs': available_langs,
         'social_links': social_links,
     })
+
+
+def _clean_leaderboard_name(raw):
+    name = ' '.join(str(raw or '').split())
+    if not re.match(r'^[\w .@+-]{2,24}$', name, re.UNICODE):
+        return None
+    return name
+
+
+@csrf_exempt
+@require_http_methods(['GET', 'POST'])
+def leaderboard(request):
+    if request.method == 'GET':
+        entries = LeaderboardEntry.objects.order_by('-score', 'updated_at')[:10]
+        response = JsonResponse({
+            'entries': [
+                {
+                    'rank': index + 1,
+                    'name': entry.name,
+                    'score': entry.score,
+                    'level': entry.level,
+                }
+                for index, entry in enumerate(entries)
+            ],
+        })
+        response['Cache-Control'] = 'no-store'
+        return response
+
+    try:
+        payload = json.loads(request.body or b'{}')
+        player_id = uuid.UUID(str(payload.get('player_id', '')))
+        name = _clean_leaderboard_name(payload.get('name'))
+        score = int(payload.get('score', 0))
+        level = int(payload.get('level', 1))
+    except (ValueError, TypeError, AttributeError, json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'invalid payload'}, status=400)
+
+    if not name or not (0 <= score <= 100_000_000) or not (1 <= level <= 99):
+        return JsonResponse({'error': 'invalid payload'}, status=400)
+
+    if not cache.add(f'leaderboard:{player_id}', 1, timeout=3):
+        return JsonResponse({'error': 'too fast'}, status=429)
+
+    with transaction.atomic():
+        entry, created = LeaderboardEntry.objects.select_for_update().get_or_create(
+            player_id=player_id,
+            defaults={'name': name, 'score': score, 'level': level},
+        )
+        if not created:
+            changed = False
+            if entry.name != name:
+                entry.name = name
+                changed = True
+            if score > entry.score:
+                entry.score = score
+                entry.level = level
+                changed = True
+            if changed:
+                entry.save(update_fields=['name', 'score', 'level', 'updated_at'])
+
+    return JsonResponse({'ok': True})
 
 
 def translations_json(request, lang):

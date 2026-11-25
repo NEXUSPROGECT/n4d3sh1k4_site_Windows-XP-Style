@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from .models import SiteSettings, Translation, Project, ProjectScreenshot, ProjectTranslation, ProjectScreenshotTranslation, Tag, SocialLink
+from .models import SiteSettings, Translation, Project, ProjectScreenshot, ProjectTranslation, ProjectScreenshotTranslation, Tag, SocialLink, LeaderboardEntry
 
 
 @admin.register(SiteSettings)
@@ -113,3 +113,12 @@ class ProjectAdmin(admin.ModelAdmin):
     preview_thumb.short_description = 'Превью'
 
 
+
+
+@admin.register(LeaderboardEntry)
+class LeaderboardEntryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'score', 'level', 'updated_at']
+    list_filter = ['level']
+    search_fields = ['name']
+    ordering = ['-score', 'updated_at']
+    readonly_fields = ['updated_at']

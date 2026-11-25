@@ -158,3 +158,19 @@ class ProjectTranslation(models.Model):
 
     def __str__(self):
         return f'[{self.language}] {self.project.slug}'
+
+class LeaderboardEntry(models.Model):
+    player_id = models.UUIDField(unique=True, verbose_name='ID игрока')
+    name = models.CharField(max_length=32, verbose_name='Имя')
+    score = models.PositiveIntegerField(default=0, verbose_name='Счёт')
+    level = models.PositiveSmallIntegerField(default=1, verbose_name='Уровень')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        ordering = ['-score', 'updated_at']
+        indexes = [models.Index(fields=['-score', 'updated_at'], name='portfolio_lb_score_idx')]
+        verbose_name = 'Рекорд'
+        verbose_name_plural = 'Таблица рекордов'
+
+    def __str__(self):
+        return f'{self.name}: {self.score}'

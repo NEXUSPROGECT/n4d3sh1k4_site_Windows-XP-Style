@@ -13,6 +13,8 @@ urlpatterns = [
     path('sitemap.xml', views.sitemap_xml, name='sitemap_xml'),
     path('site.webmanifest', views.webmanifest, name='webmanifest'),
     path('projects.json', views.projects_json, name='projects_json'),
+    path('api/leaderboard', views.leaderboard, name='leaderboard'),
+    path('api/leaderboard/', views.leaderboard),
     re_path(r'^i18n/projects\.(?P<lang>\w+)\.json$', views.project_translations_json, name='project_translations'),
     re_path(r'^i18n/(?P<lang>\w+)\.json$', views.translations_json, name='translations'),
 ]

@@ -127,7 +127,7 @@ button {
     box-sizing: border-box;
   }
 
-  #profileWindow, #aboutWindow, #projectsWindow {
+  #profileWindow, #aboutWindow, #projectsWindow, #leaderboardWindow {
     position: static !important;
     display: flex !important;
     flex-direction: column;
@@ -151,6 +151,11 @@ button {
   body.loaded #projectsWindow {
     animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     animation-delay: 0.5s;
+  }
+
+  body.loaded #leaderboardWindow {
+    animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: 0.7s;
   }
 
   #screenshotViewerWindow {
@@ -220,6 +225,11 @@ button {
   }
 
   #projectsWindow .window-body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #leaderboardWindow .window-body {
     height: auto !important;
     overflow: visible !important;
   }
@@ -399,6 +409,10 @@ button {
   display: none
 }
 
+#leaderboardWindow {
+  display: none
+}
+
 /* Medium screens - adjust window positions and sizes */
 @media (max-width: 1024px) and (min-width: 769px) {
   /* Sizes dynamically calculated by JavaScript */
@@ -421,6 +435,89 @@ button {
 
 #projectsWindow .window-body::-webkit-scrollbar-track {
   background: #e1e1e1;
+}
+
+/* Leaderboard */
+#leaderboardWindow .window-body {
+  height: calc(100% - 55px);
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.leaderboard {
+  background: #ece9d8;
+}
+
+.leaderboard-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.leaderboard-hint {
+  color: #555;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.leaderboard-refresh {
+  flex: 0 0 auto;
+  font-size: 11px;
+  min-width: 0;
+  min-height: 22px;
+  padding: 0 10px;
+}
+
+.leaderboard-status {
+  padding: 16px 8px;
+  color: #555;
+  font-size: 12px;
+  text-align: center;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  color: #222;
+  font-size: 12px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #d4d0c8;
+  text-align: left;
+}
+
+.leaderboard-table th {
+  background: #d4d0c8;
+  font-weight: bold;
+}
+
+.leaderboard-table tbody tr:nth-child(even) td {
+  background: #f5f3ec;
+}
+
+.leaderboard-table .leaderboard-rank {
+  width: 28px;
+  color: #666;
+}
+
+.leaderboard-table .leaderboard-score,
+.leaderboard-table .leaderboard-level {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.leaderboard-table .leaderboard-score {
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard-table .leaderboard-level {
+  width: 64px;
 }
 
 /* Profile */

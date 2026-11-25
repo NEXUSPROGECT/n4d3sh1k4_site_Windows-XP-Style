@@ -123,6 +123,10 @@
           <img src="{% static 'assets/icons/splav.png' %}" alt="Splav" />
           <span data-i18n="desktop.splav">{{ translations|dictkey:"desktop.splav"|default:"Сплав" }}</span>
         </div>
+        <div class="desktop-icon" ondblclick="openLeaderboard()">
+          <img src="{% static 'assets/icons/group.png' %}" alt="Leaderboard" />
+          <span data-i18n="desktop.leaderboard">{{ translations|dictkey:"desktop.leaderboard"|default:"Рекорды" }}</span>
+        </div>
         <div class="desktop-icon" ondblclick="window.open('https://github.com/NEXUSPROGECT')">
           <img src="{% static 'assets/icons/github.png' %}" alt="GitHub" />
           <span data-i18n="desktop.github">{{ translations|dictkey:"desktop.github" }}</span>
@@ -194,6 +198,35 @@
         </div>
       </section>
 
+      <section class="window" id="leaderboardWindow" data-title="{{ translations|dictkey:"desktop.leaderboard" }}" aria-label="{{ translations|dictkey:"desktop.leaderboard" }}">
+        <header class="title-bar">
+          <div class="title-bar-text"><span data-i18n="desktop.leaderboard.bar">{{ translations|dictkey:"desktop.leaderboard.bar"|default:"Рекорды - SPLAV" }}</span></div>
+          <div class="title-bar-controls">
+            <button aria-label="Close" onclick="closeWindow('leaderboardWindow')"></button>
+          </div>
+        </header>
+        <div class="window-body leaderboard">
+          <div class="leaderboard-toolbar">
+            <span class="leaderboard-hint" data-i18n="leaderboard.hint">{{ translations|dictkey:"leaderboard.hint"|default:"Имя задаётся в игре «Сплав» при первом запуске." }}</span>
+            <button type="button" class="leaderboard-refresh" onclick="loadLeaderboard(true)" data-i18n="leaderboard.refresh">Обновить</button>
+          </div>
+          <div id="leaderboardLoading" class="leaderboard-status" data-i18n="leaderboard.loading">Загрузка рекордов...</div>
+          <div id="leaderboardEmpty" class="leaderboard-status" data-i18n="leaderboard.empty" hidden>Пока нет рекордов. Сыграйте в «Сплав»!</div>
+          <div id="leaderboardError" class="leaderboard-status" data-i18n="leaderboard.error" hidden>Не удалось загрузить рекорды</div>
+          <table class="leaderboard-table" id="leaderboardTable" hidden>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th data-i18n="leaderboard.player">Игрок</th>
+                <th data-i18n="leaderboard.score">Счёт</th>
+                <th data-i18n="leaderboard.level">Уровень</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody"></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="window" id="screenshotViewerWindow" data-title="Image Viewer" style="display: none; position: absolute;" aria-label="Image Viewer">
         <header class="title-bar">
           <div class="title-bar-text">
@@ -232,6 +265,7 @@
         <button onclick="openWindow('aboutWindow')"><span data-i18n="desktop.about">{{ translations|dictkey:"desktop.about" }}</span></button>
         <button onclick="openWindow('projectsWindow')"><span data-i18n="desktop.projects">{{ translations|dictkey:"desktop.projects" }}</span></button>
         <button onclick="openSplav()"><span data-i18n="desktop.splav">{{ translations|dictkey:"desktop.splav"|default:"Сплав" }}</span></button>
+        <button onclick="openLeaderboard()"><span data-i18n="desktop.leaderboard">{{ translations|dictkey:"desktop.leaderboard"|default:"Рекорды" }}</span></button>
         <div class="start-menu-item has-submenu">
           <button aria-haspopup="true"><span data-i18n="startmenu.language">{{ translations|dictkey:"startmenu.language" }}</span></button>
           <div class="submenu" role="menu">
@@ -253,6 +287,7 @@
   <script src="{% static 'js/i18n.js' %}"></script>
   <script src="{% static 'js/language-switcher.js' %}"></script>
   <script src="{% static 'js/app.js' %}"></script>
+  <script src="{% static 'js/leaderboard.js' %}"></script>
   <script src="{% static 'js/fakeload.js' %}"></script>
   <script src="{% static 'js/XP-friendly_draggable.js' %}"></script>
   </body>
