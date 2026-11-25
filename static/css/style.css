@@ -96,7 +96,7 @@ button {
   }
 
   .mobile-game-link {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     gap: 8px;
@@ -185,7 +185,7 @@ button {
   }
 
   .mobile-footer {
-    display: block;
+    display: block !important;
     text-align: center;
     color: rgba(255, 255, 255, 0.8);
     font-family: Tahoma, sans-serif;
@@ -207,10 +207,10 @@ button {
   }
 
   .projects-grid {
-    flex: none;
+    flex: none !important;
     width: 100%;
     max-width: 100%;
-    border-right: none;
+    border-right: none !important;
     border-bottom: 2px solid #808080;
     max-height: 250px;
   }
@@ -479,6 +479,7 @@ button {
 
 .leaderboard-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   background: #fff;
   color: #222;
@@ -502,7 +503,7 @@ button {
 }
 
 .leaderboard-table .leaderboard-rank {
-  width: 28px;
+  width: 32px;
   color: #666;
 }
 
@@ -513,11 +514,12 @@ button {
 }
 
 .leaderboard-table .leaderboard-score {
+  width: 110px;
   font-variant-numeric: tabular-nums;
 }
 
 .leaderboard-table .leaderboard-level {
-  width: 64px;
+  width: 70px;
 }
 
 /* Profile */
