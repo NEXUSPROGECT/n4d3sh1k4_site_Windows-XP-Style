@@ -525,17 +525,40 @@ setTimeout(() => {
 /* ---------- PROJECTS ---------- */
 let projectTranslations = {};
 
+let projectsLoadPromise = null;
+let projectsLoadLang = null;
+
 async function loadProjects() {
+  const lang = currentLang;
+
+  // The page calls loadProjects twice on startup (app.js and i18n.js);
+  // share the same request instead of downloading both JSON files twice.
+  if (projectsLoadPromise && projectsLoadLang === lang) {
+    return projectsLoadPromise;
+  }
+
+  projectsLoadLang = lang;
+  projectsLoadPromise = (async () => {
+    try {
+      const projectsRes = await fetch("/projects.json");
+      const projects = await projectsRes.json();
+
+      const projectsTransRes = await fetch(`/i18n/projects.${lang}.json`);
+      projectTranslations = await projectsTransRes.json();
+
+      initializeProjects(projects);
+    } catch (error) {
+      console.error("Error loading projects:", error);
+    }
+  })();
+
   try {
-    const projectsRes = await fetch("/projects.json");
-    const projects = await projectsRes.json();
-
-    const projectsTransRes = await fetch(`/i18n/projects.${currentLang}.json`);
-    projectTranslations = await projectsTransRes.json();
-
-    initializeProjects(projects);
-  } catch (error) {
-    console.error("Error loading projects:", error);
+    return await projectsLoadPromise;
+  } finally {
+    if (projectsLoadLang === lang) {
+      projectsLoadPromise = null;
+      projectsLoadLang = null;
+    }
   }
 }
 

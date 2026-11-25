@@ -41,7 +41,7 @@
     <meta name="twitter:description" content="{% if translations|dictkey:"og.description" %}{{ translations|dictkey:"og.description" }}{% else %}{{ translations|dictkey:"about.text"|truncatewords:25 }}{% endif %}" />
     <meta name="twitter:image" content="{{ og_image_url }}?v=3" />
 
-    <link rel="stylesheet" href="https://unpkg.com/xp.css" />
+    <link rel="stylesheet" href="{% static 'css/xp.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 
     <script type="application/ld+json">
