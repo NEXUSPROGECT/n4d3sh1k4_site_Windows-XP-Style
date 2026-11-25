@@ -61,6 +61,46 @@ function closeWindow(id) {
   removeTaskbarButton(id);
 }
 
+// Open the Splav game in a new tab, passing the current site language.
+const SPLAV_LANGS = ["ru", "en", "uk", "es", "pt", "de", "fr", "tr", "pl", "it"];
+
+function getSplavUrl() {
+  const desktop = document.getElementById("desktop");
+  const baseUrl = (desktop && desktop.dataset.splavUrl) || "/static/games/splav/index.html";
+  const siteLang = String(
+    (typeof currentLang !== "undefined" && currentLang) ||
+    document.documentElement.lang ||
+    ""
+  ).toLowerCase().split("-")[0];
+
+  let savedLang = null;
+  try {
+    savedLang = localStorage.getItem("splav.lang");
+  } catch (e) {
+    // Storage can be unavailable in private mode.
+  }
+
+  // The language chosen inside the game wins; otherwise inherit the site language.
+  const query = !SPLAV_LANGS.includes(savedLang) && SPLAV_LANGS.includes(siteLang)
+    ? `?lang=${encodeURIComponent(siteLang)}`
+    : "";
+
+  return baseUrl + query;
+}
+
+function updateSplavLinks() {
+  document.querySelectorAll("[data-splav-link]").forEach(link => {
+    link.href = getSplavUrl();
+  });
+}
+
+function openSplav() {
+  const gameWindow = window.open(getSplavUrl(), "_blank");
+  if (gameWindow) gameWindow.opener = null;
+}
+
+updateSplavLinks();
+
 function focusWindow(win) {
   zIndex++;
   win.style.zIndex = zIndex;

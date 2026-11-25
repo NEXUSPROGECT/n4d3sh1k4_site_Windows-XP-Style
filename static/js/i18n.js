@@ -28,6 +28,9 @@ function applyTranslations() {
   if (typeof refitAboutWindow === 'function') {
     refitAboutWindow();
   }
+  if (typeof updateSplavLinks === 'function') {
+    updateSplavLinks();
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {

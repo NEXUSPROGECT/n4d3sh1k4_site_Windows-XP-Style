@@ -1,8 +1,14 @@
+from django.conf import settings
 from django.urls import path, re_path
+from django.views.generic import RedirectView
 from . import views
+
+SPLAV_URL = f'{settings.STATIC_URL}games/splav/index.html'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('splav', RedirectView.as_view(url=SPLAV_URL, permanent=False)),
+    path('splav/', RedirectView.as_view(url=SPLAV_URL, permanent=False), name='splav'),
     path('robots.txt', views.robots_txt, name='robots_txt'),
     path('sitemap.xml', views.sitemap_xml, name='sitemap_xml'),
     path('site.webmanifest', views.webmanifest, name='webmanifest'),

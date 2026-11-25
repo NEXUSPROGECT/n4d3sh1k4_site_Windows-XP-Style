@@ -84,13 +84,17 @@
   </head>
   <body>
   <main class="viewport">
-    <div class="desktop" id="desktop">
+    <div class="desktop" id="desktop" data-splav-url="{% static 'games/splav/index.html' %}">
 
       <nav class="mobile-lang-selector" aria-label="Language selector">
         <button onclick="switchLanguage('ru')" class="lang-btn" lang="ru">RU</button>
         <button onclick="switchLanguage('en')" class="lang-btn" lang="en">EN</button>
         <button onclick="switchLanguage('uk')" class="lang-btn" lang="uk">UK</button>
       </nav>
+
+      <a class="mobile-game-link" data-splav-link href="{% static 'games/splav/index.html' %}" target="_blank" rel="noopener">
+        <span data-i18n="desktop.splav">Сплав</span> ▶
+      </a>
 
       <div id="loader" class="window" style="width:300px; height:80px; top:200px; left:calc(50% - 150px);" role="status" aria-label="{{ translations|dictkey:"loader.title" }}">
         <div class="title-bar">
@@ -114,6 +118,10 @@
         <div class="desktop-icon" ondblclick="openWindow('aboutWindow')">
           <img src="{% static 'assets/icons/notepad.png' %}" alt="About" />
           <span data-i18n="desktop.about">{{ translations|dictkey:"desktop.about" }}</span>
+        </div>
+        <div class="desktop-icon" ondblclick="openSplav()">
+          <img src="{% static 'assets/icons/splav.png' %}" alt="Splav" />
+          <span data-i18n="desktop.splav">{{ translations|dictkey:"desktop.splav"|default:"Сплав" }}</span>
         </div>
         <div class="desktop-icon" ondblclick="window.open('https://github.com/NEXUSPROGECT')">
           <img src="{% static 'assets/icons/github.png' %}" alt="GitHub" />
@@ -223,6 +231,7 @@
         <button onclick="openWindow('profileWindow')"><span data-i18n="desktop.profile">{{ translations|dictkey:"desktop.profile" }}</span></button>
         <button onclick="openWindow('aboutWindow')"><span data-i18n="desktop.about">{{ translations|dictkey:"desktop.about" }}</span></button>
         <button onclick="openWindow('projectsWindow')"><span data-i18n="desktop.projects">{{ translations|dictkey:"desktop.projects" }}</span></button>
+        <button onclick="openSplav()"><span data-i18n="desktop.splav">{{ translations|dictkey:"desktop.splav"|default:"Сплав" }}</span></button>
         <div class="start-menu-item has-submenu">
           <button aria-haspopup="true"><span data-i18n="startmenu.language">{{ translations|dictkey:"startmenu.language" }}</span></button>
           <div class="submenu" role="menu">
