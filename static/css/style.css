@@ -18,6 +18,15 @@ button {
   cursor: pointer;
 }
 
+/* xp.css styles both button slots at each end of a scrollbar. Chromium can
+   render the unused slots too, producing duplicated arrows. */
+::-webkit-scrollbar-button:vertical:start:increment,
+::-webkit-scrollbar-button:vertical:end:decrement,
+::-webkit-scrollbar-button:horizontal:start:increment,
+::-webkit-scrollbar-button:horizontal:end:decrement {
+  display: none;
+}
+
 @media (max-width: 768px) {
   body {
     display: block;
@@ -199,6 +208,10 @@ button {
     border-right: none;
     border-bottom: 2px solid #808080;
     max-height: 250px;
+  }
+
+  .projects-preview {
+    box-sizing: border-box;
   }
 
   #projectsWindow {
@@ -393,7 +406,7 @@ button {
 
 #projectsWindow .window-body {
   height: calc(100% - 55px);
-  overflow-y: auto;
+  overflow: hidden;
   padding: 8px;
 }
 
@@ -498,6 +511,8 @@ button {
   display: flex;
   height: 100%;
   gap: 0;
+  min-width: 0;
+  min-height: 0;
 }
 
 .projects-grid {
@@ -508,9 +523,12 @@ button {
   padding: 12px;
   margin: 0;
   overflow-y: auto;
-  flex: 0 0 280px; /* Фиксированная базовая ширина решает баг схлопывания сетки в Firefox из-за автоматического расчета flex-basis */
+  flex: 0 0 306px; /* 280px content + 24px padding + 2px border, like before */
   border-right: 2px solid #808080;
   align-content: flex-start;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
 }
 
 .projects-divider {
@@ -526,6 +544,8 @@ button {
   background: #ece9d8;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  min-height: 0;
 }
 
 .preview-empty {
